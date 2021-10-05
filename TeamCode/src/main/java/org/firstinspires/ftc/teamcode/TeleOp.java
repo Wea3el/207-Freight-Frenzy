@@ -32,11 +32,12 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="work", group="Iterative Opmode")
-@Disabled
+//@Disabled
 public class TeleOp extends OpMode
 {
     // Declare OpMode members.
@@ -45,6 +46,9 @@ public class TeleOp extends OpMode
     private DcMotor backRight = null;
     private DcMotor backLeft = null;
     private DcMotor frontLeft = null;
+    private DcMotor intake;
+    private DcMotor duck;
+    private double power;
     /*
      * Code to run ONCE when the driver hits INIT
      */
@@ -57,11 +61,12 @@ public class TeleOp extends OpMode
         backRight = hardwareMap.get(DcMotor.class, "BR");
         backLeft= hardwareMap.get(DcMotor.class, "BL");
         frontLeft = hardwareMap.get(DcMotor.class, "FL");
-
+        intake = hardwareMap.get(DcMotor.class, "intake");
+        duck = hardwareMap.get(DcMotor.class, "duck");
 
         frontRight.setDirection(DcMotor.Direction.FORWARD);
-        backRight.setDirection(DcMotor.Direction.REVERSE);
-        frontLeft.setDirection(DcMotor.Direction.FORWARD);
+        backRight.setDirection(DcMotor.Direction.FORWARD);
+        frontLeft.setDirection(DcMotor.Direction.REVERSE);
         backLeft.setDirection(DcMotor.Direction.REVERSE);
 
         // Tell the driver that initialization is complete.
@@ -90,9 +95,19 @@ public class TeleOp extends OpMode
     public void loop() {
         // Setup a variable for each drive wheel to save power level for telemetry
         frontRight.setPower(gamepad1.right_stick_y);
-        frontLeft.setPower(gamepad1.right_stick_y);
-        backRight.setPower(gamepad1.left_stick_y);
+        frontLeft.setPower(gamepad1.left_stick_y);
+        backRight.setPower(gamepad1.right_stick_y);
         backLeft.setPower(gamepad1.left_stick_y);
+        intake.setPower(gamepad2.left_stick_y);
+        if(gamepad2.a){
+            runtime.reset();
+            power = 0.35;
+
+        }
+        if(runtime.milliseconds() > 1300){
+            power = 0;
+        }
+        duck.setPower(power);
 
         // Send calculated power to wheels
 
