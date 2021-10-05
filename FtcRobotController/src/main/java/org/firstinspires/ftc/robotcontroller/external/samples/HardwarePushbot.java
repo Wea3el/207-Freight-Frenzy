@@ -101,5 +101,5 @@ public class HardwarePushbot
         leftClaw.setPosition(MID_SERVO);
         rightClaw.setPosition(MID_SERVO);
     }
- }
+}
 

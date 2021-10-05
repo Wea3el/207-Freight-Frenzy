@@ -33,6 +33,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -48,7 +49,11 @@ public class TeleOp extends OpMode
     private DcMotor frontLeft = null;
     private DcMotor intake;
     private DcMotor duck;
+    private DcMotor lift;
     private double power;
+    private double strafePower;
+    private Servo spit;
+    private double speed;
     /*
      * Code to run ONCE when the driver hits INIT
      */
@@ -63,6 +68,8 @@ public class TeleOp extends OpMode
         frontLeft = hardwareMap.get(DcMotor.class, "FL");
         intake = hardwareMap.get(DcMotor.class, "intake");
         duck = hardwareMap.get(DcMotor.class, "duck");
+        lift = hardwareMap.get(DcMotor.class, "lift");
+        spit = hardwareMap.get(Servo.class, "spit");
 
         frontRight.setDirection(DcMotor.Direction.FORWARD);
         backRight.setDirection(DcMotor.Direction.FORWARD);
@@ -94,11 +101,20 @@ public class TeleOp extends OpMode
     @Override
     public void loop() {
         // Setup a variable for each drive wheel to save power level for telemetry
-        frontRight.setPower(gamepad1.right_stick_y);
-        frontLeft.setPower(gamepad1.left_stick_y);
-        backRight.setPower(gamepad1.right_stick_y);
-        backLeft.setPower(gamepad1.left_stick_y);
+        frontRight.setPower(gamepad1.right_stick_y * speed);
+        frontLeft.setPower(gamepad1.left_stick_y * speed);
+        backRight.setPower(gamepad1.right_stick_y * speed );
+        backLeft.setPower(gamepad1.left_stick_y * speed);
         intake.setPower(gamepad2.left_stick_y);
+        lift.setPower(gamepad2.right_stick_y *0.75);
+
+        if(gamepad2.b){
+            spit.setPosition(1);
+        }
+        else{
+            spit.setPosition(0);
+        }
+
         if(gamepad2.a){
             runtime.reset();
             power = 0.35;
@@ -107,6 +123,40 @@ public class TeleOp extends OpMode
         if(runtime.milliseconds() > 1300){
             power = 0;
         }
+
+        if(gamepad1.a){
+            speed = 0.5;
+        }
+        else if(gamepad1.b){
+            speed = 1;
+        }
+
+
+
+
+
+        if(gamepad1.right_trigger > 0.1){
+            strafePower = gamepad1.right_trigger;
+            frontRight.setPower(strafePower);
+            frontLeft.setPower(-strafePower);
+            backRight.setPower(-strafePower);
+            backLeft.setPower(strafePower);
+        }
+
+       else if(gamepad1.left_trigger > 0.1){
+            strafePower = gamepad1.left_trigger;
+            frontRight.setPower(-strafePower);
+            frontLeft.setPower(strafePower);
+            backRight.setPower(strafePower);
+            backLeft.setPower(-strafePower);
+        }
+       else{
+
+            strafePower = 0;
+
+        }
+
+
         duck.setPower(power);
 
         // Send calculated power to wheels

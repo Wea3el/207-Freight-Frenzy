@@ -359,5 +359,4 @@ public class PushbotAutoDriveByGyro_Linear extends LinearOpMode {
     public double getSteer(double error, double PCoeff) {
         return Range.clip(error * PCoeff, -1, 1);
     }
-
 }
