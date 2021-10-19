@@ -43,10 +43,10 @@ public class TeleOp extends OpMode
 {
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
-    private DcMotor frontRight = null;
-    private DcMotor backRight = null;
-    private DcMotor backLeft = null;
-    private DcMotor frontLeft = null;
+    private DcMotor frontRight;
+    private DcMotor backRight;
+    private DcMotor backLeft;
+    private DcMotor frontLeft;
     private DcMotor intake;
     private DcMotor duck;
     private DcMotor lift;
