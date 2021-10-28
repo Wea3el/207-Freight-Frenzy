@@ -115,9 +115,17 @@ public class TeleOp extends OpMode
             spit.setPosition(0);
         }
 
-        if(gamepad2.a){
+        if(gamepad2.x){
             runtime.reset();
             power = 0.35;
+
+        }
+        if(runtime.milliseconds() > 1300){
+            power = 0;
+        }
+        if(gamepad2.y){
+            runtime.reset();
+            power = -0.35;
 
         }
         if(runtime.milliseconds() > 1300){

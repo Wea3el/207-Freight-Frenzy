@@ -89,29 +89,37 @@ public class GyroAuton extends OpMode {
     public void loop() {
 
 
-        if (gamepad1.a) {
-            x = 0;
-        }
-        else if (gamepad1.b) {
-             x = 90;
-        }
-        else if (gamepad1.x) {
-             x = 180;
-        }
-        else if (gamepad1.y) {
-             x = 270;
-        }
-        if(gamepad1.right_bumper  & P_TURN_COEFF <= 1 & runtime.milliseconds() > 1000){
-            P_TURN_COEFF +=0.01;
-            runtime.reset();
-        }
-        else if(gamepad1.left_bumper & P_TURN_COEFF >= 0 & runtime.milliseconds() > 1000){
-            P_TURN_COEFF -=0.01;
-            runtime.reset();
-
-        }
-        boolean there = onHeading(.5, x , P_TURN_COEFF);
-        telemetry.addData("there", there);
+//        if (gamepad1.a) {
+//            x = 0;
+//        }
+//        else if (gamepad1.b) {
+//             x = 90;
+//        }
+//        else if (gamepad1.x) {
+//             x = 180;
+//        }
+//        else if (gamepad1.y) {
+//             x = 270;
+//        }
+//        if(gamepad1.right_bumper  & P_TURN_COEFF <= 1 & runtime.milliseconds() > 1000){
+//            P_TURN_COEFF +=0.01;
+//            runtime.reset();
+//        }
+//        else if(gamepad1.left_bumper & P_TURN_COEFF >= 0 & runtime.milliseconds() > 1000){
+//            P_TURN_COEFF -=0.01;
+//            runtime.reset();
+//
+//        }
+//        double steer = gyroCorrect(x, 1,
+//                imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle,
+//                0.05, 0.3);
+//        double rightSpeed  = steer;
+//        double leftSpeed   = -rightSpeed;
+//        frontLeft.setPower(leftSpeed);
+//        backLeft.setPower(leftSpeed);
+//        frontRight.setPower(rightSpeed);
+//        backRight.setPower(rightSpeed);
+        onHeading(270);
     }
 
     @Override
@@ -152,20 +160,18 @@ public class GyroAuton extends OpMode {
     /**
      * Perform one cycle of closed loop heading control.
      *
-     * @param speed     Desired speed of turn.
      * @param angle     Absolute Angle (in Degrees) relative to last gyro reset.
      *                  0 = fwd. +ve is CCW from fwd. -ve is CW from forward.
      *                  If a relative angle is required, add/subtract from current heading.
-     * @param PCoeff    Proportional Gain coefficient
      * @return
      */
-    boolean onHeading(double speed, double angle, double PCoeff) {
+    boolean onHeading(double angle) {
         double actual = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
         double   steer ;
         boolean  onTarget = false ;
         double leftSpeed;
         double rightSpeed;
-        double error =  (angle - actual + 360.0) % 360.0;
+        double error =  (angle - actual)-180;
 
         // determine turn power based on +/- error
 
@@ -178,8 +184,8 @@ public class GyroAuton extends OpMode {
 
         }
         else {
-            steer = gyroCorrect(angle, 2, actual , 0.05, 0.3);
-            rightSpeed  = speed * steer;
+            steer = gyroCorrect(angle, 1, actual , 0.05, 0.3);
+            rightSpeed  = steer;
             leftSpeed   = -rightSpeed;
         }
 
@@ -191,11 +197,7 @@ public class GyroAuton extends OpMode {
 
 
         // Display it for the driver.
-        telemetry.addData("Target", "%5.2f", angle);
-        telemetry.addData("Err/St", "%5.2f/%5.2f", error, steer);
-        telemetry.addData("Speed.", "%5.2f:%5.2f", leftSpeed, rightSpeed);
-        telemetry.addData("Pcoeff", P_TURN_COEFF);
-        telemetry.addData("time", runtime);
+
         return onTarget;
     }
 
