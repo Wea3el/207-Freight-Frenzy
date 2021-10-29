@@ -164,7 +164,7 @@ public class EncoderThings extends OpMode {
     switch(auto){
             case 0:
 
-                int target = cmToTicks(6);
+                int target = cmToTicks(7);
                 drive(target, 0.5);
 
 
@@ -186,8 +186,8 @@ public class EncoderThings extends OpMode {
                 break;
 
             case(2):
-                target = cmToTicks(8);
-                strafe(target, 0.5, -1);
+                target = cmToTicks(3.2);
+                strafe(target, 0.3, -1);
 
 
                 if(Math.abs(frontLeft.getCurrentPosition())> target ){
@@ -198,45 +198,42 @@ public class EncoderThings extends OpMode {
                 break;
 
             case(3):
-                duck.setPower(0.4);
-                if(runtime.milliseconds()>3000){
+                duck.setPower(0.3);
+                if(runtime.milliseconds()>6000){
                     duck.setPower(0);
                     auto++;
                     runtime.reset();
                 }
 
                 break;
-
-
             case(4):
-
-                frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
-                backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
-                backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
-                frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
-                onHeading(90);
-                if(onHeading(90) & runtime.milliseconds()>2000) {
-                    auto++;
-                    }
-                break;
-            case(5):
                 frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
                 auto++;
                 runtime.reset();
-                break;
-            case(6):
-                target = cmToTicks(6);
-                strafe(target, 0.5, -1);
+            case(5):
+                drive(cmToTicks(3), 1);
 
 
-                if(Math.abs(frontLeft.getCurrentPosition())> target ){
+                if(Math.abs(frontLeft.getCurrentPosition())> cmToTicks(3) ){
                     auto++;
 
                 }
-                runtime.reset();
+                break;
+
+
+                case(6):
+
+                frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
+                backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
+                backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
+                frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
+                onHeading(90);
+                if(onHeading(90) & runtime.milliseconds()>2500) {
+                    auto++;
+                    }
                 break;
             case(7):
                 frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -246,18 +243,37 @@ public class EncoderThings extends OpMode {
                 auto++;
                 runtime.reset();
                 break;
-
             case(8):
+                target = cmToTicks(4.3);
+                strafe(target, 0.5, -1);
 
-                drive(4000, 1);
+
+                if(Math.abs(frontLeft.getCurrentPosition())> target ){
+                    auto++;
+
+                }
+                runtime.reset();
+                break;
+            case(9):
+                frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+                auto++;
+                runtime.reset();
+                break;
+
+            case(10):
+
+                drive(5000, 1);
 
 
-                if(Math.abs(frontLeft.getCurrentPosition())> 4000 ){
+                if(Math.abs(frontLeft.getCurrentPosition())> 5000 ){
                     auto++;
 
                 }
                 break;
-            case(9):
+            case(11):
                 frontLeft.setPower(0);
                 backRight.setPower(0);
                 backLeft.setPower(0);
@@ -377,11 +393,12 @@ public class EncoderThings extends OpMode {
             return 0.0;
         }
     }
-    public int cmToTicks(int cm){
+    public int cmToTicks(double cm){
         int ticksPerRev = 537;
         int diameter = 10;
         return (int) (ticksPerRev *(cm  / (diameter* Math.PI)));
     }
 
 }
+
 
