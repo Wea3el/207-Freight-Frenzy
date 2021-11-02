@@ -41,13 +41,13 @@ public class BlueEncoderThings extends OpMode {
     private double strafePower;
     private Servo spit;
     private double speed;
-    final double     HEADING_THRESHOLD       = 3;      // As tight as we can make it with an integer gyro
+    final double     HEADING_THRESHOLD       = 5;      // As tight as we can make it with an integer gyro
     BNO055IMU imu;
     BNO055IMU.Parameters parameters;
     boolean calib;
     int auto = 0;
     int place;
-
+    boolean detected = false;
     private int pos;
     private static final String TFOD_MODEL_ASSET = "FreightFrenzy_BCDM.tflite";
     private static final String[] LABELS = {
@@ -110,12 +110,13 @@ public class BlueEncoderThings extends OpMode {
         backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
+        lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
         frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
+        lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
 
 
         pos = 0;
@@ -123,6 +124,7 @@ public class BlueEncoderThings extends OpMode {
         imu.initialize(parameters);
         initVuforia();
         initTfod();
+        spit.setPosition(0);
 
         /**
          * Activate TensorFlow Object Detection before we wait for the start command.
@@ -164,6 +166,24 @@ public class BlueEncoderThings extends OpMode {
 
 
     }
+    private void lift(int targetPos, double speed)
+    {
+
+        int pos = targetPos;
+
+
+        lift.setTargetPosition(pos);
+
+
+
+
+        lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+
+        lift.setPower(speed);
+
+
+    }
     private void strafe(int targetPos, double speed, int direction)//true == 1, false == left
     {
 
@@ -183,6 +203,7 @@ public class BlueEncoderThings extends OpMode {
         frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
+
         frontLeft.setPower(speed);
         backLeft.setPower(speed);
         frontRight.setPower(speed);
@@ -195,45 +216,50 @@ public class BlueEncoderThings extends OpMode {
     public void init_loop() {
         telemetry.addData("Gyro Calib?", imu.isGyroCalibrated());
         telemetry.addData("heading", imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle);
-        if (tfod != null) {
-            // getUpdatedRecognitions() will return null if no new information is available since
-            // the last time that call was made.
-            List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
-            if (updatedRecognitions != null) {
-                telemetry.addData("# Object Detected", updatedRecognitions.size());
+            if (tfod != null) {
+                // getUpdatedRecognitions() will return null if no new information is available since
+                // the last time that call was made.
+                List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+                if (updatedRecognitions != null) {
+                    telemetry.addData("# Object Detected", updatedRecognitions.size());
 
-                // step through the list of recognitions and display boundary info.
-                int i = 0;
-                for (Recognition recognition : updatedRecognitions) {
-                    telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
-                    telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
-                            recognition.getLeft(), recognition.getTop());
+                    // step through the list of recognitions and display boundary info.
+                    int i = 0;
+                    for (Recognition recognition : updatedRecognitions) {
+                        telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
+                        telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
+                                recognition.getLeft(), recognition.getTop());
 
-                    telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
-                            recognition.getRight(), recognition.getBottom());
-                    if(recognition.getLeft() > 680 & recognition.getRight() >940 &recognition.getLeft() < 740 ){
-                        place = 1;
-                        telemetry.addLine("done");
-                        break;
+                        telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
+                                recognition.getRight(), recognition.getBottom());
+                        i++;
+                        if(recognition.getLeft() > 850 & recognition.getRight() >1200){
+                            place = 1;
+                            telemetry.addLine("done");
+                            detected = true;
+                            break;
+                        }
+                        else if(recognition.getLeft() > 200 & recognition.getRight() >450 &recognition.getRight() <600){
+                            place = 2;
+                            telemetry.addLine("done");
+                            detected = true;
+                            break;
+                        }
+                        else if(!detected){
+                            place = 3;
+                            telemetry.addLine("done");
+                            break;
+
+                        }
+
+
                     }
-                    else if(recognition.getLeft() > 740 & recognition.getRight() >900 &recognition.getRight() <940){
-                        place = 2;
-                        telemetry.addLine("done");
-                        break;
-                    }
-                    else if (runtime.milliseconds()>5000){
-                        place = 3;
-                        telemetry.addLine("done");
-                        break;
 
-                    }
-
-                    i++;
+                    telemetry.update();
                 }
-
-                telemetry.update();
             }
-        }
+
+
     }
 
     @Override
@@ -251,174 +277,207 @@ public class BlueEncoderThings extends OpMode {
 
     @Override
     public void loop() {
-        if(place == 1){
-            auto = 0;
-        }
-        else if(place == 2){
-            auto = 100;
-        }
-        else{
-            auto = 200;
-        }
+
+
+
 
         switch(auto){
             case 0:
+
                 int target = cmToTicks(7);
                 drive(target, 0.5);
+
+
                 if(frontLeft.getCurrentPosition()> target ){
-                    frontLeft.setPower(0);
-                    backRight.setPower(0);
-                    backLeft.setPower(0);
-                    frontRight.setPower(0);
+                    auto++;
 
                 }
-            case 100:
-                target = cmToTicks(7);
-                strafe(target, 0.5, 1);
-                if(frontLeft.getCurrentPosition()> target ){
-                    frontLeft.setPower(0);
-                    backRight.setPower(0);
-                    backLeft.setPower(0);
-                    frontRight.setPower(0);
+
+                break;
+
+
+            case(1):
+                frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+                auto++;
+                runtime.reset();
+                break;
+
+            case(2):
+                target = cmToTicks(3.2);
+                strafe(target, 0.3, 1);
+
+
+                if(Math.abs(frontLeft.getCurrentPosition())> target ){
+                    auto++;
 
                 }
-            case 200:
-                target = cmToTicks(-7);
-                strafe(target, 0.5, -1);
-                if(frontLeft.getCurrentPosition()> target ){
-                    frontLeft.setPower(0);
-                    backRight.setPower(0);
-                    backLeft.setPower(0);
-                    frontRight.setPower(0);
+                runtime.reset();
+                break;
+
+            case(3):
+                duck.setPower(-0.3);
+                if(runtime.milliseconds()>6000){
+                    duck.setPower(0);
+                    auto++;
+                    runtime.reset();
+                }
+
+                break;
+            case(4):
+                frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+                auto++;
+                runtime.reset();
+            case(5):
+                drive(cmToTicks(3), 1);
+
+
+                if(Math.abs(frontLeft.getCurrentPosition())> cmToTicks(3) ){
+                    auto++;
 
                 }
+                break;
+
+
+            case(6):
+
+                frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
+                backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
+                backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
+                frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
+                onHeading(270);
+                if(onHeading(270) & runtime.milliseconds()>2000) {
+                    auto++;
+                }
+                break;
+            case(7):
+                frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+                auto++;
+                runtime.reset();
+                break;
+            case(8):
+
+                strafe(1100, 0.8, 1);
+
+
+                if(Math.abs(frontLeft.getCurrentPosition())> 1300 ){
+                    auto++;
+
+                }
+                runtime.reset();
+                break;
+            case(9):
+                frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+                auto++;
+                runtime.reset();
+                break;
+
+            case(10):
+                if(place ==1 ){
+                    target = cmToTicks(66);
+                }
+                else if(place == 2){
+                    target = cmToTicks(63);
+                }
+                else{
+                    target = cmToTicks(60);
+                }
+
+                drive(target, 0.4);
+
+
+                if(Math.abs(frontLeft.getCurrentPosition())> target ){
+                    auto++;
+
+                }
+                break;
+            case(11):
+                frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+                lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+                auto++;
+                runtime.reset();
+                break;
+            case(12):
+                if(place ==1 ){
+                    target = 130;
+                }
+                else if(place == 2){
+                    target = 1000;
+                }
+                else{
+                    target = 1200;
+                }
+                lift(target,0.3);
+
+                if(lift.getCurrentPosition()> target){
+                    spit.setPosition(1);
+
+                }
+                if(runtime.milliseconds() > 3000){
+                    auto++;
+                    spit.setPosition(0);
+                }
+                break;
+
+
+
+            case(13):
+                strafe(700, 0.5, -1);
+
+
+                if(Math.abs(frontLeft.getCurrentPosition())> 800 ){
+                    auto++;
+
+                }
+                runtime.reset();
+                break;
+            case(14):
+                frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+                lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+                auto++;
+                runtime.reset();
+                break;
+
+
+            case(15):
+                drive(155, 1);
+
+
+                if(Math.abs(frontLeft.getCurrentPosition())> cmToTicks(155) ){
+                    auto++;
+
+                }
+                break;
+            case(16):
+                backLeft.setPower(0);
+                backRight.setPower(0);
+                frontLeft.setPower(0);
+                frontRight.setPower(0);
+
+
+
+
+
+
 
         }
-//        switch(auto){
-//            case 0:
-//
-//                int target = cmToTicks(7);
-//                drive(target, 0.5);
-//
-//
-//                if(frontLeft.getCurrentPosition()> target ){
-//                    auto++;
-//
-//                }
-//
-//                break;
-//
-//
-//            case(1):
-//                frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//                backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//                backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//                frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
-//                auto++;
-//                runtime.reset();
-//                break;
-//
-//            case(2):
-//                target = cmToTicks(3.2);
-//                strafe(target, 0.3, 1);
-//
-//
-//                if(Math.abs(frontLeft.getCurrentPosition())> target ){
-//                    auto++;
-//
-//                }
-//                runtime.reset();
-//                break;
-//
-//            case(3):
-//                duck.setPower(-0.3);
-//                if(runtime.milliseconds()>6000){
-//                    duck.setPower(0);
-//                    auto++;
-//                    runtime.reset();
-//                }
-//
-//                break;
-//            case(4):
-//                frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//                backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//                backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//                frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
-//                auto++;
-//                runtime.reset();
-//            case(5):
-//                drive(cmToTicks(3), 1);
-//
-//
-//                if(Math.abs(frontLeft.getCurrentPosition())> cmToTicks(3) ){
-//                    auto++;
-//
-//                }
-//                break;
-//
-//
-//            case(6):
-//
-//                frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
-//                backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
-//                backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
-//                frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
-//                onHeading(270);
-//                if(onHeading(270) & runtime.milliseconds()>2500) {
-//                    auto++;
-//                }
-//                break;
-//            case(7):
-//                frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//                backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//                backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//                frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
-//                auto++;
-//                runtime.reset();
-//                break;
-//            case(8):
-//                target = cmToTicks(4.7);
-//                strafe(target, 0.5, 1);
-//
-//
-//                if(Math.abs(frontLeft.getCurrentPosition())> target ){
-//                    auto++;
-//
-//                }
-//                runtime.reset();
-//                break;
-//            case(9):
-//                frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//                backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//                backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//                frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
-//                auto++;
-//                runtime.reset();
-//                break;
-//
-//            case(10):
-//
-//                drive(5000, 1);
-//
-//
-//                if(Math.abs(frontLeft.getCurrentPosition())> 5000 ){
-//                    auto++;
-//
-//                }
-//                break;
-//            case(11):
-//                frontLeft.setPower(0);
-//                backRight.setPower(0);
-//                backLeft.setPower(0);
-//                frontRight.setPower(0);
-//
-//
-//
-//
-//
-//
-//
-//        }
 
 
 
@@ -428,6 +487,7 @@ public class BlueEncoderThings extends OpMode {
         telemetry.addData("frontRight", frontRight.getCurrentPosition());
         telemetry.addData("backRight", backRight.getCurrentPosition());
         telemetry.addData("backLeft", backLeft.getCurrentPosition());
+        telemetry.addData("lift", lift.getCurrentPosition());
         telemetry.addData("Status", imu.getSystemStatus().toShortString());
         telemetry.addData("Calib Status", imu.getCalibrationStatus().toString());
         telemetry.addData("Gyro Calib?", imu.isGyroCalibrated());
@@ -437,7 +497,7 @@ public class BlueEncoderThings extends OpMode {
         telemetry.addData("cmToTicks(150)", cmToTicks(150));
         telemetry.addData("place", place);
 
-        telemetry.update();
+
 
 
     }

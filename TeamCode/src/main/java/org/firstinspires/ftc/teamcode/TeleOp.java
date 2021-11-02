@@ -128,6 +128,7 @@ public class TeleOp extends OpMode
             power = -0.35;
 
         }
+
         if(runtime.milliseconds() > 1300){
             power = 0;
         }
@@ -166,6 +167,14 @@ public class TeleOp extends OpMode
 
 
         duck.setPower(power);
+
+        telemetry.addData("frontLeft", frontLeft.getCurrentPosition());
+        telemetry.addData("frontRight", frontRight.getCurrentPosition());
+        telemetry.addData("backRight", backRight.getCurrentPosition());
+        telemetry.addData("backLeft", backLeft.getCurrentPosition());
+        telemetry.addData("lift", lift.getCurrentPosition());
+        telemetry.addData("spit", spit.getPosition());
+        telemetry.update();
 
         // Send calculated power to wheels
 
