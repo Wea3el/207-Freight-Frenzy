@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.util.ReadWriteFile;
 
 import org.firstinspires.ftc.robotcontroller.external.samples.HardwarePushbot;
+import org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
@@ -89,18 +90,18 @@ public class GyroAuton extends OpMode {
     public void loop() {
 
 
-//        if (gamepad1.a) {
-//            x = 0;
-//        }
-//        else if (gamepad1.b) {
-//             x = 90;
-//        }
-//        else if (gamepad1.x) {
-//             x = 180;
-//        }
-//        else if (gamepad1.y) {
-//             x = 270;
-//        }
+        if (gamepad1.a) {
+            x = 0;
+        }
+        else if (gamepad1.b) {
+             x = 90;
+        }
+        else if (gamepad1.x) {
+             x = 180;
+        }
+        else if (gamepad1.y) {
+             x = 270;
+        }
 //        if(gamepad1.right_bumper  & P_TURN_COEFF <= 1 & runtime.milliseconds() > 1000){
 //            P_TURN_COEFF +=0.01;
 //            runtime.reset();
@@ -119,7 +120,18 @@ public class GyroAuton extends OpMode {
 //        backLeft.setPower(leftSpeed);
 //        frontRight.setPower(rightSpeed);
 //        backRight.setPower(rightSpeed);
-        onHeading(270);
+        onHeading(x);
+
+        telemetry.addData("frontLeft", frontLeft.getCurrentPosition());
+        telemetry.addData("frontRight", frontRight.getCurrentPosition());
+        telemetry.addData("backRight", backRight.getCurrentPosition());
+        telemetry.addData("backLeft", backLeft.getCurrentPosition());
+        telemetry.addData("Status", imu.getSystemStatus().toShortString());
+        telemetry.addData("Calib Status", imu.getCalibrationStatus().toString());
+        telemetry.addData("Gyro Calib?", imu.isGyroCalibrated());
+        telemetry.addData("heading", imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle);
+        telemetry.addData("time", runtime.milliseconds());
+        telemetry.update();
     }
 
     @Override

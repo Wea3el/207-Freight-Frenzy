@@ -284,34 +284,47 @@ public class BlueEncoderThings extends OpMode {
         switch(auto){
             case 0:
 
-                int target = cmToTicks(7);
-                drive(target, 0.5);
+
+                drive(cmToTicks(6.5), 0.3);
 
 
-                if(frontLeft.getCurrentPosition()> target ){
+                if(frontLeft.getCurrentPosition() > cmToTicks(6.3) ){
+                    backLeft.setPower(0);
+                    backRight.setPower(0);
+                    frontLeft.setPower(0);
+                    frontRight.setPower(0);
                     auto++;
 
                 }
+                runtime.reset();
 
                 break;
 
 
             case(1):
-                frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
-                auto++;
-                runtime.reset();
+
+
+                if(runtime.milliseconds() > 500){
+                    frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+                    auto++;
+                }
+
+
                 break;
 
             case(2):
-                target = cmToTicks(3.2);
-                strafe(target, 0.3, 1);
+                strafe(950, 0.3, 1);
 
 
-                if(Math.abs(frontLeft.getCurrentPosition())> target ){
+                if(Math.abs(frontLeft.getCurrentPosition())> 950 ){
                     auto++;
+                    backLeft.setPower(0);
+                    backRight.setPower(0);
+                    frontLeft.setPower(0);
+                    frontRight.setPower(0);
 
                 }
                 runtime.reset();
@@ -339,8 +352,13 @@ public class BlueEncoderThings extends OpMode {
 
                 if(Math.abs(frontLeft.getCurrentPosition())> cmToTicks(3) ){
                     auto++;
+                    backLeft.setPower(0);
+                    backRight.setPower(0);
+                    frontLeft.setPower(0);
+                    frontRight.setPower(0);
 
                 }
+
                 break;
 
 
@@ -350,9 +368,13 @@ public class BlueEncoderThings extends OpMode {
                 backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
                 backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
                 frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
-                onHeading(270);
+
                 if(onHeading(270) & runtime.milliseconds()>2000) {
                     auto++;
+                    backLeft.setPower(0);
+                    backRight.setPower(0);
+                    frontLeft.setPower(0);
+                    frontRight.setPower(0);
                 }
                 break;
             case(7):
@@ -365,11 +387,15 @@ public class BlueEncoderThings extends OpMode {
                 break;
             case(8):
 
-                strafe(1100, 0.8, 1);
+                strafe(1300, 0.5, 1);
 
 
                 if(Math.abs(frontLeft.getCurrentPosition())> 1300 ){
                     auto++;
+                    backLeft.setPower(0);
+                    backRight.setPower(0);
+                    frontLeft.setPower(0);
+                    frontRight.setPower(0);
 
                 }
                 runtime.reset();
@@ -384,14 +410,15 @@ public class BlueEncoderThings extends OpMode {
                 break;
 
             case(10):
+                int target = 0;
                 if(place ==1 ){
-                    target = cmToTicks(66);
+                    target = cmToTicks(61.5);
                 }
                 else if(place == 2){
                     target = cmToTicks(63);
                 }
                 else{
-                    target = cmToTicks(60);
+                    target = cmToTicks(64.3);
                 }
 
                 drive(target, 0.4);
@@ -399,6 +426,10 @@ public class BlueEncoderThings extends OpMode {
 
                 if(Math.abs(frontLeft.getCurrentPosition())> target ){
                     auto++;
+                    backLeft.setPower(0);
+                    backRight.setPower(0);
+                    frontLeft.setPower(0);
+                    frontRight.setPower(0);
 
                 }
                 break;
@@ -413,21 +444,21 @@ public class BlueEncoderThings extends OpMode {
                 break;
             case(12):
                 if(place ==1 ){
-                    target = 130;
+                    target = 1200;
                 }
                 else if(place == 2){
                     target = 1000;
                 }
                 else{
-                    target = 1200;
+                    target = 230;
                 }
                 lift(target,0.3);
 
                 if(lift.getCurrentPosition()> target){
-                    spit.setPosition(1);
+                    spit.setPosition(0.7);
 
                 }
-                if(runtime.milliseconds() > 3000){
+                if(runtime.milliseconds() > 5000){
                     auto++;
                     spit.setPosition(0);
                 }
@@ -436,11 +467,15 @@ public class BlueEncoderThings extends OpMode {
 
 
             case(13):
-                strafe(700, 0.5, -1);
+                strafe(800, 0.5, -1);
 
 
                 if(Math.abs(frontLeft.getCurrentPosition())> 800 ){
                     auto++;
+                    backLeft.setPower(0);
+                    backRight.setPower(0);
+                    frontLeft.setPower(0);
+                    frontRight.setPower(0);
 
                 }
                 runtime.reset();
@@ -457,10 +492,10 @@ public class BlueEncoderThings extends OpMode {
 
 
             case(15):
-                drive(155, 1);
+                drive(185, 1);
 
 
-                if(Math.abs(frontLeft.getCurrentPosition())> cmToTicks(155) ){
+                if(Math.abs(frontLeft.getCurrentPosition())> cmToTicks(185) ){
                     auto++;
 
                 }
@@ -541,7 +576,7 @@ public class BlueEncoderThings extends OpMode {
 
         }
         else {
-            steer = gyroCorrect(angle, 1, actual , 0.05, 0.3);
+            steer = gyroCorrect(angle, 1, actual , 0.05, 0.2);
             rightSpeed  = steer;
             leftSpeed   = -rightSpeed;
         }
