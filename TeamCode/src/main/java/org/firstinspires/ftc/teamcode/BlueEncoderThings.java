@@ -239,7 +239,7 @@ public class BlueEncoderThings extends OpMode {
                             detected = true;
                             break;
                         }
-                        else if(recognition.getLeft() > 200 & recognition.getRight() >450 &recognition.getRight() <600){
+                        else if(recognition.getLeft() > 400 & recognition.getRight() >1200 &recognition.getLeft() <600){
                             place = 2;
                             telemetry.addLine("done");
                             detected = true;
@@ -288,7 +288,7 @@ public class BlueEncoderThings extends OpMode {
                 drive(cmToTicks(6.5), 0.3);
 
 
-                if(frontLeft.getCurrentPosition() > cmToTicks(6.3) ){
+                if(frontLeft.getCurrentPosition() > cmToTicks(6.5) ){
                     backLeft.setPower(0);
                     backRight.setPower(0);
                     frontLeft.setPower(0);
@@ -412,13 +412,13 @@ public class BlueEncoderThings extends OpMode {
             case(10):
                 int target = 0;
                 if(place ==1 ){
-                    target = cmToTicks(61.5);
+                    target = cmToTicks(61);
                 }
                 else if(place == 2){
-                    target = cmToTicks(63);
+                    target = cmToTicks(61);
                 }
                 else{
-                    target = cmToTicks(64.3);
+                    target = cmToTicks(64.5);
                 }
 
                 drive(target, 0.4);
@@ -454,7 +454,7 @@ public class BlueEncoderThings extends OpMode {
                 }
                 lift(target,0.3);
 
-                if(lift.getCurrentPosition()> target){
+                if(runtime.milliseconds()>3000){
                     spit.setPosition(0.7);
 
                 }
@@ -467,10 +467,10 @@ public class BlueEncoderThings extends OpMode {
 
 
             case(13):
-                strafe(800, 0.5, -1);
+                strafe(780, 0.5, -1);
 
 
-                if(Math.abs(frontLeft.getCurrentPosition())> 800 ){
+                if(Math.abs(frontLeft.getCurrentPosition())> 780 ){
                     auto++;
                     backLeft.setPower(0);
                     backRight.setPower(0);
@@ -492,10 +492,10 @@ public class BlueEncoderThings extends OpMode {
 
 
             case(15):
-                drive(185, 1);
+                drive(190, 1);
 
 
-                if(Math.abs(frontLeft.getCurrentPosition())> cmToTicks(185) ){
+                if(Math.abs(frontLeft.getCurrentPosition())> cmToTicks(190) ){
                     auto++;
 
                 }
