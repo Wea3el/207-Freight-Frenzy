@@ -37,9 +37,9 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="Blue fuck you luc", group="Iterative Opmode")
+@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="Red fuck you luc", group="Iterative Opmode")
 //@Disabled
-public class TeleOp extends OpMode
+public class RedFuckYouLuc extends OpMode
 {
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
@@ -111,16 +111,16 @@ public class TeleOp extends OpMode
     @Override
     public void loop() {
         // Setup a variable for each drive wheel to save power level for telemetry
-        if(gamepad1.right_trigger > 0.1){
-            strafePower = gamepad1.right_trigger;
+        if(gamepad1.left_trigger > 0.1){
+            strafePower = gamepad1.left_trigger;
             frontRight.setPower(strafePower);
             frontLeft.setPower(-strafePower);
             backRight.setPower(-strafePower);
             backLeft.setPower(strafePower);
         }
 
-        else if(gamepad1.left_trigger > 0.1){
-            strafePower = gamepad1.left_trigger;
+        else if(gamepad1.right_trigger > 0.1){
+            strafePower = gamepad1.right_trigger;
             frontRight.setPower(-strafePower);
             frontLeft.setPower(strafePower);
             backRight.setPower(strafePower);
@@ -145,11 +145,11 @@ public class TeleOp extends OpMode
         }
 
         if(gamepad2.x){
-            power = 0.1;
+            power = 0.2;
 
         }
         else if(gamepad2.y){
-            power = -0.1;
+            power = -0.2;
 
         }
         else{
@@ -188,7 +188,7 @@ public class TeleOp extends OpMode
         telemetry.addData("backLeft", backLeft.getCurrentPosition());
         telemetry.addData("lift", lift.getCurrentPosition());
         telemetry.addData("spit", spit.getPosition());
-        telemetry.addData("SPEED", power);
+        telemetry.addData("SPEED", duck.getPower());
         telemetry.update();
 
         // Send calculated power to wheels
@@ -204,8 +204,3 @@ public class TeleOp extends OpMode
     public void stop() {
     }
 }
-
-
-
-
-

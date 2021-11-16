@@ -285,7 +285,7 @@ public class BlueEncoderThings extends OpMode {
             case 0:
 
 
-                drive(cmToTicks(6.5), 0.3);
+                drive(cmToTicks(6.8), 0.3);
 
 
                 if(frontLeft.getCurrentPosition() > cmToTicks(6.5) ){
@@ -347,7 +347,7 @@ public class BlueEncoderThings extends OpMode {
                 auto++;
                 runtime.reset();
             case(5):
-                drive(cmToTicks(3), 1);
+                drive(cmToTicks(4), 1);
 
 
                 if(Math.abs(frontLeft.getCurrentPosition())> cmToTicks(3) ){
@@ -387,7 +387,7 @@ public class BlueEncoderThings extends OpMode {
                 break;
             case(8):
 
-                strafe(1400, 0.5, 1);
+                strafe(1500, 0.5, 1);
 
 
                 if(Math.abs(frontLeft.getCurrentPosition())> 1400 ){
@@ -408,17 +408,31 @@ public class BlueEncoderThings extends OpMode {
                 auto++;
                 runtime.reset();
                 break;
-
             case(10):
+                frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
+                backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
+                backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
+                frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
+
+                if(onHeading(270) & runtime.milliseconds()>1000) {
+                    auto++;
+                    backLeft.setPower(0);
+                    backRight.setPower(0);
+                    frontLeft.setPower(0);
+                    frontRight.setPower(0);
+                }
+                break;
+
+            case(11):
                 int target = 0;
                 if(place ==1 ){
-                    target = cmToTicks(61);
+                    target = cmToTicks(61.5);
                 }
                 else if(place == 2){
-                    target = cmToTicks(59.5);
+                    target = cmToTicks(59);
                 }
                 else{
-                    target = cmToTicks(63);
+                    target = cmToTicks(62);
                 }
 
                 drive(target, 0.4);
@@ -433,7 +447,7 @@ public class BlueEncoderThings extends OpMode {
 
                 }
                 break;
-            case(11):
+            case(12):
                 frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -442,12 +456,12 @@ public class BlueEncoderThings extends OpMode {
                 auto++;
                 runtime.reset();
                 break;
-            case(12):
+            case(13):
                 if(place ==1 ){
                     target = 1200;
                 }
                 else if(place == 2){
-                    target = 1000;
+                    target = 800;
                 }
                 else{
                     target = 450;
@@ -466,8 +480,8 @@ public class BlueEncoderThings extends OpMode {
 
 
 
-            case(13):
-                strafe(780, 0.5, -1);
+            case(14):
+                strafe(1050, 0.5, -1);
 
 
                 if(Math.abs(frontLeft.getCurrentPosition())> 780 ){
@@ -480,7 +494,7 @@ public class BlueEncoderThings extends OpMode {
                 }
                 runtime.reset();
                 break;
-            case(14):
+            case(15):
                 frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -490,9 +504,31 @@ public class BlueEncoderThings extends OpMode {
                 runtime.reset();
                 break;
 
+            case(16):
+                frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
+                backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
+                backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
+                frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
 
-            case(15):
-                drive(190, 0.8);
+                if(onHeading(270) & runtime.milliseconds()>1000) {
+                    auto++;
+                    backLeft.setPower(0);
+                    backRight.setPower(0);
+                    frontLeft.setPower(0);
+                    frontRight.setPower(0);
+                }
+                break;
+            case(17):
+                frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+
+                auto++;
+                runtime.reset();
+                break;
+            case(18):
+                drive(200, 0.8);
 
 
                 if(Math.abs(frontLeft.getCurrentPosition())> cmToTicks(190) ){
@@ -500,7 +536,7 @@ public class BlueEncoderThings extends OpMode {
 
                 }
                 break;
-            case(16):
+            case(19):
                 backLeft.setPower(0);
                 backRight.setPower(0);
                 frontLeft.setPower(0);
@@ -638,7 +674,6 @@ public class BlueEncoderThings extends OpMode {
 
         //  Instantiate the Vuforia engine
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
-
         // Loading trackables is not necessary for the TensorFlow Object Detection engine.
     }
 
@@ -649,7 +684,7 @@ public class BlueEncoderThings extends OpMode {
         int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
                 "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-        tfodParameters.minResultConfidence = 0.1f;
+        tfodParameters.minResultConfidence = 0.5f;
         tfodParameters.isModelTensorFlow2 = true;
         tfodParameters.inputSize = 320;
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);

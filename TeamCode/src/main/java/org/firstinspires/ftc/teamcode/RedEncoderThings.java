@@ -27,7 +27,7 @@ import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import java.io.File;
 import java.util.List;
 
-@Autonomous(name = "BlueEncoderThings", group = "Testing")
+@Autonomous(name = "RedEncoderThings", group = "Testing")
 public class RedEncoderThings extends OpMode {
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotor frontRight;
@@ -138,7 +138,7 @@ public class RedEncoderThings extends OpMode {
         // to artificially zoom in to the center of image.  For best results, the "aspectRatio" argument
         // should be set to the value of the images used to create the TensorFlow Object Detection model
         // (typically 16/9).
-        tfod.setZoom(1.0, 16.0/9.0);
+        tfod.setZoom(1.5, 16.0/9.0);
     }
 
     private void drive(int targetPos, double speed)
@@ -233,13 +233,13 @@ public class RedEncoderThings extends OpMode {
                     telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
                             recognition.getRight(), recognition.getBottom());
                     i++;
-                    if(recognition.getLeft() > 850 & recognition.getRight() >1200){
+                    if(recognition.getLeft() > 10 & recognition.getRight() >150 &recognition.getLeft() <300){
                         place = 1;
                         telemetry.addLine("done");
                         detected = true;
                         break;
                     }
-                    else if(recognition.getLeft() > 400 & recognition.getRight() >1200 &recognition.getLeft() <600){
+                    else if(recognition.getLeft() > 400 & recognition.getRight() >800 ){
                         place = 2;
                         telemetry.addLine("done");
                         detected = true;
@@ -369,7 +369,7 @@ public class RedEncoderThings extends OpMode {
                 backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
                 frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
 
-                if(onHeading(90) & runtime.milliseconds()>2000) {
+                if(onHeading(90) & runtime.milliseconds()>2500) {
                     auto++;
                     backLeft.setPower(0);
                     backRight.setPower(0);
@@ -387,7 +387,7 @@ public class RedEncoderThings extends OpMode {
                 break;
             case(8):
 
-                strafe(1300, 0.5, -1);
+                strafe(1325, 0.5, -1);
 
 
                 if(Math.abs(frontLeft.getCurrentPosition())> 1300 ){
@@ -408,17 +408,31 @@ public class RedEncoderThings extends OpMode {
                 auto++;
                 runtime.reset();
                 break;
-
             case(10):
+                frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
+                backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
+                backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
+                frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
+
+                if(onHeading(90) & runtime.milliseconds()>1000) {
+                    auto++;
+                    backLeft.setPower(0);
+                    backRight.setPower(0);
+                    frontLeft.setPower(0);
+                    frontRight.setPower(0);
+                }
+                break;
+            case(11):
                 int target = 0;
                 if(place ==1 ){
-                    target = cmToTicks(61);
+                    target = cmToTicks(62);
                 }
                 else if(place == 2){
-                    target = cmToTicks(61);
+                    target = cmToTicks(57);
                 }
                 else{
-                    target = cmToTicks(64.5);
+                    target = cmToTicks(59);
+
                 }
 
                 drive(target, 0.4);
@@ -433,7 +447,7 @@ public class RedEncoderThings extends OpMode {
 
                 }
                 break;
-            case(11):
+            case(12):
                 frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -442,15 +456,17 @@ public class RedEncoderThings extends OpMode {
                 auto++;
                 runtime.reset();
                 break;
-            case(12):
+            case(13):
                 if(place ==1 ){
-                    target = 1200;
+                    target = 230;
+
                 }
                 else if(place == 2){
-                    target = 1000;
+                    target = 800;
                 }
                 else{
-                    target = 230;
+                    target = 1200;
+
                 }
                 lift(target,0.3);
 
@@ -466,8 +482,9 @@ public class RedEncoderThings extends OpMode {
 
 
 
-            case(13):
-                strafe(780, 0.5, 1);
+            case(14):
+                strafe(750, 0.5, 1);
+
 
 
                 if(Math.abs(frontLeft.getCurrentPosition())> 780 ){
@@ -480,19 +497,42 @@ public class RedEncoderThings extends OpMode {
                 }
                 runtime.reset();
                 break;
-            case(14):
+            case(15):
                 frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
-                lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+
                 auto++;
                 runtime.reset();
                 break;
 
+            case(16):
+                frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
+                backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
+                backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
+                frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
 
-            case(15):
-                drive(190, 1);
+                if(onHeading(90) & runtime.milliseconds()>1000) {
+                    auto++;
+                    backLeft.setPower(0);
+                    backRight.setPower(0);
+                    frontLeft.setPower(0);
+                    frontRight.setPower(0);
+                }
+                break;
+            case(17):
+                frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+
+                auto++;
+                runtime.reset();
+                break;
+            case(18):
+                drive(195, 1);
+
 
 
                 if(Math.abs(frontLeft.getCurrentPosition())> cmToTicks(190) ){
@@ -500,7 +540,8 @@ public class RedEncoderThings extends OpMode {
 
                 }
                 break;
-            case(16):
+            case(19):
+                lift.setPower(0);
                 backLeft.setPower(0);
                 backRight.setPower(0);
                 frontLeft.setPower(0);
