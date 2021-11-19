@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Auton;
 
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.linearOpMode;
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
@@ -29,9 +29,11 @@ import java.util.List;
 
 @Autonomous(name = "BlueEncoderThings", group = "Testing")
 public class BlueEncoderThings extends OpMode {
+
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotor frontRight;
     private DcMotor backRight;
+
     private DcMotor backLeft;
     private DcMotor frontLeft;
     private DcMotor intake;

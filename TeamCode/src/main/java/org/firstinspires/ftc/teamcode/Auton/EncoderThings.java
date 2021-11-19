@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Auton;
 
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.linearOpMode;
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;

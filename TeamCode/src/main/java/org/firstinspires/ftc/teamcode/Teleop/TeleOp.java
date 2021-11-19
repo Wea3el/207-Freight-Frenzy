@@ -27,9 +27,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Teleop;
 
-import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -38,13 +37,9 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-
-@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="Red fuck you luc", group="Iterative Opmode")
+@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="Blue fuck you luc", group="Iterative Opmode")
 //@Disabled
-public class RedFuckYouLuc extends OpMode
+public class TeleOp extends OpMode
 {
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
@@ -59,11 +54,8 @@ public class RedFuckYouLuc extends OpMode
     private double strafePower;
     private Servo spit;
     private double speed = 1;
-    private double curHeading;
-    private boolean fieldCentric = false;
-
-    BNO055IMU imu;
-    BNO055IMU.Parameters parameters;
+    private boolean xHeld;
+    private boolean yHeld;
     /*
      * Code to run ONCE when the driver hits INIT
      */
@@ -93,10 +85,7 @@ public class RedFuckYouLuc extends OpMode
         lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
         duck.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
 
-        imu = hardwareMap.get(BNO055IMU.class, "imu");
-        parameters = new BNO055IMU.Parameters();
-        parameters.loggingEnabled = true;
-        parameters.loggingTag = "IMU";
+
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
     }
@@ -122,113 +111,63 @@ public class RedFuckYouLuc extends OpMode
     @Override
     public void loop() {
         // Setup a variable for each drive wheel to save power level for telemetry
-        if(fieldCentric){
-            curHeading = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
-            // Setup a variable for each drive wheel to save power level for telemetry
+        if(gamepad1.right_trigger > 0.1){
+            strafePower = gamepad1.right_trigger;
+            frontRight.setPower(strafePower);
+            frontLeft.setPower(-strafePower);
+            backRight.setPower(-strafePower);
+            backLeft.setPower(strafePower);
+        }
 
-            double forward = (-1) * gamepad1.left_stick_y;
-            double strafe = gamepad1.left_stick_x;
-            double clockwise = gamepad1.right_stick_x;
-
-            // Apply the turn modifier
-            clockwise *= 1; //Test and see if should be lowered / raised for desired control
-
-            // Convert to Radians for Math.sin/cos
-            double orient = Math.toRadians(curHeading);
-            double sin = Math.sin(orient);
-            double cos = Math.cos(orient);
-
-            // Apply the rotation matrix
-            double temp = forward * cos - strafe * sin;
-            strafe = forward * sin + strafe * cos;
-            forward = temp;
-
-            // Set power values
-            double flPow = forward + clockwise + strafe;
-            double frPow = forward - clockwise - strafe;
-            double blPow = forward + clockwise - strafe;
-            double rrPow = forward - clockwise + strafe;
-
-            double max = Math.max(1, Math.abs(forward) + Math.abs(strafe) + Math.abs(clockwise));
-
-            // Clip power values to within acceptable ranges for the motors
-            flPow /= max;
-            frPow /= max;
-            blPow /= max;
-            rrPow /= max;
-
-            frontLeft.setPower(flPow);
-            frontRight.setPower(frPow);
-            backLeft.setPower(blPow);
-            backRight.setPower(rrPow);
+        else if(gamepad1.left_trigger > 0.1){
+            strafePower = gamepad1.left_trigger;
+            frontRight.setPower(-strafePower);
+            frontLeft.setPower(strafePower);
+            backRight.setPower(strafePower);
+            backLeft.setPower(-strafePower);
         }
         else{
-            if(gamepad1.left_trigger > 0.1){
-                strafePower = gamepad1.left_trigger;
-                frontRight.setPower(strafePower);
-                frontLeft.setPower(-strafePower);
-                backRight.setPower(-strafePower);
-                backLeft.setPower(strafePower);
-            }
-
-            else if(gamepad1.right_trigger > 0.1){
-                strafePower = gamepad1.right_trigger;
-                frontRight.setPower(-strafePower);
-                frontLeft.setPower(strafePower);
-                backRight.setPower(strafePower);
-                backLeft.setPower(-strafePower);
-            }
-            else{
-                frontRight.setPower(gamepad1.right_stick_y * speed);
-                frontLeft.setPower(gamepad1.left_stick_y * speed);
-                backRight.setPower(gamepad1.right_stick_y * speed );
-                backLeft.setPower(gamepad1.left_stick_y * speed);
-                intake.setPower(gamepad2.left_stick_y);
-                lift.setPower(gamepad2.right_stick_y *0.75);
-
-            }
-
-
-            if(gamepad2.b){
-                spit.setPosition(1);
-            }
-            else{
-                spit.setPosition(0);
-            }
-
-            if(gamepad2.x){
-                power = 0.2;
-
-            }
-            else if(gamepad2.y){
-                power = -0.2;
-
-            }
-            else{
-                power = 0;
-
-            }
-            duck.setPower(power);
-
-
-
-            if(gamepad1.right_stick_button ){
-                if(speed == 1){
-                    speed = 0.5;
-                }
-                else{
-                    speed = 1;
-                }
-            }
-
+            frontRight.setPower(gamepad1.right_stick_y * speed);
+            frontLeft.setPower(gamepad1.left_stick_y * speed);
+            backRight.setPower(gamepad1.right_stick_y * speed );
+            backLeft.setPower(gamepad1.left_stick_y * speed);
+            intake.setPower(gamepad2.left_stick_y);
+            lift.setPower(gamepad2.right_stick_y *0.75);
 
         }
 
-        if(gamepad1.b){
-            fieldCentric = !fieldCentric;
 
+        if(gamepad2.b){
+            spit.setPosition(1);
+        }
+        else{
+            spit.setPosition(0);
         }
 
+        if(gamepad2.x){
+            power = 0.1;
+
+        }
+        else if(gamepad2.y){
+            power = -0.1;
+
+        }
+        else{
+            power = 0;
+
+        }
+        duck.setPower(power);
+
+
+
+        if(gamepad1.right_stick_button ){
+            if(speed == 1){
+                speed = 0.5;
+            }
+            else{
+                speed = 1;
+            }
+        }
 
 
 
@@ -249,7 +188,7 @@ public class RedFuckYouLuc extends OpMode
         telemetry.addData("backLeft", backLeft.getCurrentPosition());
         telemetry.addData("lift", lift.getCurrentPosition());
         telemetry.addData("spit", spit.getPosition());
-        telemetry.addData("SPEED", duck.getPower());
+        telemetry.addData("SPEED", power);
         telemetry.update();
 
         // Send calculated power to wheels
@@ -265,3 +204,8 @@ public class RedFuckYouLuc extends OpMode
     public void stop() {
     }
 }
+
+
+
+
+
