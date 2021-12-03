@@ -52,7 +52,8 @@ public class RedEncoderThings extends OpMode {
     private static final String TFOD_MODEL_ASSET = "FreightFrenzy_BCDM.tflite";
     private static final String[] LABELS = {
             "Cube",
-            "Marker"
+            "Marker",
+            "Ball"
     };
 
     /*
@@ -138,7 +139,7 @@ public class RedEncoderThings extends OpMode {
         // to artificially zoom in to the center of image.  For best results, the "aspectRatio" argument
         // should be set to the value of the images used to create the TensorFlow Object Detection model
         // (typically 16/9).
-        tfod.setZoom(1.5, 16.0/9.0);
+        tfod.setZoom(1, 16.0/9.0);
     }
 
     private void drive(int targetPos, double speed)
@@ -423,12 +424,55 @@ public class RedEncoderThings extends OpMode {
                 }
                 break;
             case(11):
+                frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+                lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+                auto++;
+                runtime.reset();
+                break;
+            case(12):
                 int target = 0;
+                if(place ==1 ){
+                    target = 230;
+
+                }
+                else if(place == 2){
+                    target = 800;
+                }
+                else{
+                    target = 1200;
+
+                }
+                lift(target,0.3);
+                if(runtime.milliseconds()> 2000){
+                    auto++;
+                    backLeft.setPower(0);
+                    backRight.setPower(0);
+                    frontLeft.setPower(0);
+                    frontRight.setPower(0);
+
+                }
+
+                break;
+
+            case(13):
+                frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+                lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+                auto++;
+                runtime.reset();
+                break;
+            case(14):
+                target = 0;
                 if(place ==1 ){
                     target = cmToTicks(62);
                 }
                 else if(place == 2){
-                    target = cmToTicks(57);
+                    target = cmToTicks(60);
                 }
                 else{
                     target = cmToTicks(59);
@@ -444,51 +488,34 @@ public class RedEncoderThings extends OpMode {
                     backRight.setPower(0);
                     frontLeft.setPower(0);
                     frontRight.setPower(0);
-
-                }
-                break;
-            case(12):
-                frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
-                lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
-                auto++;
-                runtime.reset();
-                break;
-            case(13):
-                if(place ==1 ){
-                    target = 230;
-
-                }
-                else if(place == 2){
-                    target = 800;
-                }
-                else{
-                    target = 1200;
-
-                }
-                lift(target,0.3);
-
-                if(runtime.milliseconds()>3000){
                     spit.setPosition(0.7);
 
                 }
-                if(runtime.milliseconds() > 5000){
-                    auto++;
-                    spit.setPosition(0);
-                }
+                runtime.reset();
                 break;
 
 
 
-            case(14):
-                strafe(750, 0.5, 1);
-
-
-
-                if(Math.abs(frontLeft.getCurrentPosition())> 780 ){
+            case(15):
+                if(runtime.milliseconds() >1000){
+                    frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
                     auto++;
+                    runtime.reset();
+                }
+
+                break;
+
+            case(16):
+                strafe(900, 0.5, 1);
+
+
+
+                if(Math.abs(frontLeft.getCurrentPosition())> 850 ){
+                    auto++;
+                    spit.setPosition(0);
                     backLeft.setPower(0);
                     backRight.setPower(0);
                     frontLeft.setPower(0);
@@ -497,7 +524,7 @@ public class RedEncoderThings extends OpMode {
                 }
                 runtime.reset();
                 break;
-            case(15):
+            case(17):
                 frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -507,7 +534,7 @@ public class RedEncoderThings extends OpMode {
                 runtime.reset();
                 break;
 
-            case(16):
+            case(18):
                 frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
                 backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
                 backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
@@ -521,7 +548,7 @@ public class RedEncoderThings extends OpMode {
                     frontRight.setPower(0);
                 }
                 break;
-            case(17):
+            case(19):
                 frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -530,17 +557,26 @@ public class RedEncoderThings extends OpMode {
                 auto++;
                 runtime.reset();
                 break;
-            case(18):
+            case(20):
                 drive(195, 1);
+                if(place ==1 ){
+                    target = 230;
 
+                }
+                else if(place == 2){
+                    target = 800;
+                }
+                else{
+                    target = 1200;
 
-
+                }
+                lift(-target, 0.5);
                 if(Math.abs(frontLeft.getCurrentPosition())> cmToTicks(190) ){
                     auto++;
 
                 }
                 break;
-            case(19):
+            case(21):
                 lift.setPower(0);
                 backLeft.setPower(0);
                 backRight.setPower(0);
@@ -698,4 +734,3 @@ public class RedEncoderThings extends OpMode {
     }
 
 }
-
