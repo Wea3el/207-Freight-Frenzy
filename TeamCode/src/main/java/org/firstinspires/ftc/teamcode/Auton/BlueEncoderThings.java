@@ -319,7 +319,7 @@ public class BlueEncoderThings extends OpMode {
                 break;
 
             case(2):
-                strafe(950, 0.3, 1);
+                strafe(950, 0.1, 1);
 
 
                 if(Math.abs(frontLeft.getCurrentPosition())> 950 ){
@@ -442,7 +442,7 @@ public class BlueEncoderThings extends OpMode {
 
                 }
                 else if(place == 2){
-                    target = 800;
+                    target = 700;
                 }
                 else{
                     target = 230;
@@ -512,11 +512,10 @@ public class BlueEncoderThings extends OpMode {
                 break;
 
             case(16):
-                strafe(900, 0.5, -1);
+                drive(-100,0.2);
 
 
-
-                if(Math.abs(frontLeft.getCurrentPosition())> 850 ){
+                if(cmToTicks(-100)>Math.abs(frontLeft.getCurrentPosition())){
                     auto++;
                     spit.setPosition(0);
                     backLeft.setPower(0);
@@ -528,10 +527,7 @@ public class BlueEncoderThings extends OpMode {
                 runtime.reset();
                 break;
             case(17):
-                frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+                frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
 
                 auto++;
                 runtime.reset();
@@ -561,23 +557,7 @@ public class BlueEncoderThings extends OpMode {
                 runtime.reset();
                 break;
             case(20):
-                drive(195, 1);
-                if(place ==1 ){
-                    target = 230;
-
-                }
-                else if(place == 2){
-                    target = 800;
-                }
-                else{
-                    target = 1200;
-
-                }
-                lift(-target, 0.5);
-                if(Math.abs(frontLeft.getCurrentPosition())> cmToTicks(190) ){
-                    auto++;
-
-                }
+                strafe(200,0.2, -1);
                 break;
             case(21):
                 lift.setPower(0);
