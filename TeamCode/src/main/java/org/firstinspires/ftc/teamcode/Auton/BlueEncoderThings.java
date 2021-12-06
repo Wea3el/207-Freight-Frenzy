@@ -54,7 +54,8 @@ public class BlueEncoderThings extends OpMode {
     private static final String TFOD_MODEL_ASSET = "FreightFrenzy_BCDM.tflite";
     private static final String[] LABELS = {
             "Cube",
-            "Marker"
+            "Marker",
+            "Ball"
     };
 
     /*
@@ -426,15 +427,59 @@ public class BlueEncoderThings extends OpMode {
                 break;
 
             case(11):
+                frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+                lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+                auto++;
+                runtime.reset();
+                break;
+            case(12):
                 int target = 0;
                 if(place ==1 ){
-                    target = cmToTicks(61.5);
+                    target = 1200;
+
                 }
                 else if(place == 2){
+                    target = 800;
+                }
+                else{
+                    target = 230;
+
+                }
+                lift(target,0.3);
+                if(runtime.milliseconds()> 2000){
+                    auto++;
+                    backLeft.setPower(0);
+                    backRight.setPower(0);
+                    frontLeft.setPower(0);
+                    frontRight.setPower(0);
+
+                }
+
+                break;
+
+            case(13):
+                frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+                lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+                auto++;
+                runtime.reset();
+                break;
+            case(14):
+                target = 0;
+                if(place ==1 ){
                     target = cmToTicks(59);
+                }
+                else if(place == 2){
+                    target = cmToTicks(60);
                 }
                 else{
                     target = cmToTicks(62);
+
                 }
 
                 drive(target, 0.4);
@@ -446,48 +491,34 @@ public class BlueEncoderThings extends OpMode {
                     backRight.setPower(0);
                     frontLeft.setPower(0);
                     frontRight.setPower(0);
-
-                }
-                break;
-            case(12):
-                frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
-                lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
-                auto++;
-                runtime.reset();
-                break;
-            case(13):
-                if(place ==1 ){
-                    target = 1200;
-                }
-                else if(place == 2){
-                    target = 800;
-                }
-                else{
-                    target = 450;
-                }
-                lift(target,0.3);
-
-                if(runtime.milliseconds()>3000){
                     spit.setPosition(0.7);
 
                 }
-                if(runtime.milliseconds() > 5000){
-                    auto++;
-                    spit.setPosition(0);
-                }
+                runtime.reset();
                 break;
 
 
 
-            case(14):
-                strafe(1050, 0.5, -1);
-
-
-                if(Math.abs(frontLeft.getCurrentPosition())> 780 ){
+            case(15):
+                if(runtime.milliseconds() >1000){
+                    frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
                     auto++;
+                    runtime.reset();
+                }
+
+                break;
+
+            case(16):
+                strafe(900, 0.5, -1);
+
+
+
+                if(Math.abs(frontLeft.getCurrentPosition())> 850 ){
+                    auto++;
+                    spit.setPosition(0);
                     backLeft.setPower(0);
                     backRight.setPower(0);
                     frontLeft.setPower(0);
@@ -496,17 +527,17 @@ public class BlueEncoderThings extends OpMode {
                 }
                 runtime.reset();
                 break;
-            case(15):
+            case(17):
                 frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
-                lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+
                 auto++;
                 runtime.reset();
                 break;
 
-            case(16):
+            case(18):
                 frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
                 backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
                 backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
@@ -520,7 +551,7 @@ public class BlueEncoderThings extends OpMode {
                     frontRight.setPower(0);
                 }
                 break;
-            case(17):
+            case(19):
                 frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -529,16 +560,27 @@ public class BlueEncoderThings extends OpMode {
                 auto++;
                 runtime.reset();
                 break;
-            case(18):
-                drive(200, 0.8);
+            case(20):
+                drive(195, 1);
+                if(place ==1 ){
+                    target = 230;
 
+                }
+                else if(place == 2){
+                    target = 800;
+                }
+                else{
+                    target = 1200;
 
+                }
+                lift(-target, 0.5);
                 if(Math.abs(frontLeft.getCurrentPosition())> cmToTicks(190) ){
                     auto++;
 
                 }
                 break;
-            case(19):
+            case(21):
+                lift.setPower(0);
                 backLeft.setPower(0);
                 backRight.setPower(0);
                 frontLeft.setPower(0);
@@ -686,12 +728,11 @@ public class BlueEncoderThings extends OpMode {
         int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
                 "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-        tfodParameters.minResultConfidence = 0.5f;
+        tfodParameters.minResultConfidence = 0.1f;
         tfodParameters.isModelTensorFlow2 = true;
         tfodParameters.inputSize = 320;
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABELS);
     }
-
 }
 
