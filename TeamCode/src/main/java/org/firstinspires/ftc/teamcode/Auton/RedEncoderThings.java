@@ -512,7 +512,7 @@ public class RedEncoderThings extends OpMode {
                 drive(-100,0.2);
 
 
-                if(cmToTicks(-100)>Math.abs(frontLeft.getCurrentPosition())){
+                if(cmToTicks(-100)>(frontLeft.getCurrentPosition())){
                     auto++;
                     spit.setPosition(0);
                     backLeft.setPower(0);
@@ -554,7 +554,14 @@ public class RedEncoderThings extends OpMode {
                 runtime.reset();
                 break;
             case(20):
-                strafe(200,0.2, 1);
+                strafe(500,0.2, 1);
+                if(Math.abs(frontLeft.getCurrentPosition())> 500 ) {
+                    auto++;
+                    backLeft.setPower(0);
+                    backRight.setPower(0);
+                    frontLeft.setPower(0);
+                    frontRight.setPower(0);
+                }
                 break;
             case(21):
                 lift.setPower(0);
