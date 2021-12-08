@@ -319,7 +319,7 @@ public class BlueEncoderThings extends OpMode {
                 break;
 
             case(2):
-                strafe(950, 0.1, 1);
+                strafe(900, 0.1, 1);
 
 
                 if(Math.abs(frontLeft.getCurrentPosition())> 950 ){
@@ -557,8 +557,21 @@ public class BlueEncoderThings extends OpMode {
                 runtime.reset();
                 break;
             case(20):
-                strafe(500,0.2, -1);
-                if(Math.abs(frontLeft.getCurrentPosition())> 500 ){
+                target = 0;
+                if(place ==1 ){
+                    target = -1200;
+
+                }
+                else if(place == 2){
+                    target = -700;
+                }
+                else{
+                    target = -230;
+
+                }
+                lift(target,0.3);
+                strafe(550,0.2, -1);
+                if(Math.abs(frontLeft.getCurrentPosition())> 550 ){
                 auto++;
                 backLeft.setPower(0);
                 backRight.setPower(0);
@@ -716,7 +729,7 @@ public class BlueEncoderThings extends OpMode {
         int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
                 "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-        tfodParameters.minResultConfidence = 0.1f;
+        tfodParameters.minResultConfidence = 0.2f;
         tfodParameters.isModelTensorFlow2 = true;
         tfodParameters.inputSize = 320;
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);

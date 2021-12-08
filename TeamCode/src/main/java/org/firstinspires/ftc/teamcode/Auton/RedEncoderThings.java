@@ -234,13 +234,13 @@ public class RedEncoderThings extends OpMode {
                     telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
                             recognition.getRight(), recognition.getBottom());
                     i++;
-                    if(recognition.getLeft() > 10 & recognition.getRight() >150 &recognition.getLeft() <300){
+                    if(recognition.getLeft() > 10 & recognition.getRight() >150 &recognition.getLeft() <350){
                         place = 1;
                         telemetry.addLine("done");
                         detected = true;
                         break;
                     }
-                    else if(recognition.getLeft() > 400 & recognition.getRight() >800 ){
+                    else if(recognition.getLeft() > 475 & recognition.getRight() >800 ){
                         place = 2;
                         telemetry.addLine("done");
                         detected = true;
@@ -317,7 +317,7 @@ public class RedEncoderThings extends OpMode {
                 break;
 
             case(2):
-                strafe(950, 0.3, -1);
+                strafe(900, 0.1, -1);
 
 
                 if(Math.abs(frontLeft.getCurrentPosition())> 950 ){
@@ -415,7 +415,7 @@ public class RedEncoderThings extends OpMode {
                 backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
                 frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
 
-                if(onHeading(90) & runtime.milliseconds()>1000) {
+                if(onHeading(90) & runtime.milliseconds()>1500) {
                     auto++;
                     backLeft.setPower(0);
                     backRight.setPower(0);
@@ -435,11 +435,11 @@ public class RedEncoderThings extends OpMode {
             case(12):
                 int target = 0;
                 if(place ==1 ){
-                    target = 230;
+                    target = 150;
 
                 }
                 else if(place == 2){
-                    target = 800;
+                    target = 700;
                 }
                 else{
                     target = 1200;
@@ -469,7 +469,7 @@ public class RedEncoderThings extends OpMode {
             case(14):
                 target = 0;
                 if(place ==1 ){
-                    target = cmToTicks(62);
+                    target = cmToTicks(61);
                 }
                 else if(place == 2){
                     target = cmToTicks(60);
@@ -554,8 +554,21 @@ public class RedEncoderThings extends OpMode {
                 runtime.reset();
                 break;
             case(20):
-                strafe(500,0.2, 1);
-                if(Math.abs(frontLeft.getCurrentPosition())> 500 ) {
+                strafe(550,0.2, 1);
+                target = 0;
+                if(place ==1 ){
+                    target = -150;
+
+                }
+                else if(place == 2){
+                    target = -700;
+                }
+                else{
+                    target = -1200;
+
+                }
+                lift(target,0.3);
+                if(Math.abs(frontLeft.getCurrentPosition())> 550 ) {
                     auto++;
                     backLeft.setPower(0);
                     backRight.setPower(0);
@@ -712,7 +725,7 @@ public class RedEncoderThings extends OpMode {
         int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
                 "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-        tfodParameters.minResultConfidence = 0.1f;
+        tfodParameters.minResultConfidence = 0.2f;
         tfodParameters.isModelTensorFlow2 = true;
         tfodParameters.inputSize = 320;
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
