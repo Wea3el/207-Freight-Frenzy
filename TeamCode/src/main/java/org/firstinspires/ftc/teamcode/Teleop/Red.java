@@ -63,8 +63,7 @@ public class Red extends OpMode
     private double speed = 1;
     private double curHeading;
     private boolean fieldCentric = false;
-    private double thing;
-    private double thing1;
+    private double liftSpeed = 0.5;
     ModernRoboticsI2cRangeSensor rangeSensor;
 
     BNO055IMU imu;
@@ -196,7 +195,7 @@ public class Red extends OpMode
                 backRight.setPower(gamepad1.right_stick_y * speed );
                 backLeft.setPower(gamepad1.left_stick_y * speed);
                 intake.setPower(gamepad2.left_stick_y);
-                lift.setPower(gamepad2.right_stick_y *0.75);
+                lift.setPower(gamepad2.right_stick_y *0.5);
 
             }
 
@@ -211,14 +210,14 @@ public class Red extends OpMode
 
 
             if(gamepad2.x){
-                power = 0.275;
+                power = 0.25;
                 runtime.reset();
             }
             else if(gamepad2.y){
-                power = -0.275;
+                power = -0.25;
                 runtime.reset();
             }
-            else if(runtime.milliseconds() >1250){
+            else{
                 power = 0;
             }
             duck.setPower(power);

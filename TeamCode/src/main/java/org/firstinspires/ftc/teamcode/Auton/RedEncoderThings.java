@@ -317,10 +317,10 @@ public class RedEncoderThings extends OpMode {
                 break;
 
             case(2):
-                strafe(900, 0.1, -1);
+                strafe(920, 0.1, -1);
 
 
-                if(Math.abs(frontLeft.getCurrentPosition())> 950 ){
+                if(Math.abs(frontLeft.getCurrentPosition())> 920 ){
                     auto++;
                     backLeft.setPower(0);
                     backRight.setPower(0);
@@ -469,10 +469,10 @@ public class RedEncoderThings extends OpMode {
             case(14):
                 target = 0;
                 if(place ==1 ){
-                    target = cmToTicks(61);
+                    target = cmToTicks(60);
                 }
                 else if(place == 2){
-                    target = cmToTicks(60);
+                    target = cmToTicks(60.3);
                 }
                 else{
                     target = cmToTicks(59);
@@ -554,7 +554,7 @@ public class RedEncoderThings extends OpMode {
                 runtime.reset();
                 break;
             case(20):
-                strafe(550,0.2, 1);
+                strafe(575,0.2, 1);
                 target = 0;
                 if(place ==1 ){
                     target = -150;
@@ -568,7 +568,7 @@ public class RedEncoderThings extends OpMode {
 
                 }
                 lift(target,0.3);
-                if(Math.abs(frontLeft.getCurrentPosition())> 550 ) {
+                if(Math.abs(frontLeft.getCurrentPosition())> 575 ) {
                     auto++;
                     backLeft.setPower(0);
                     backRight.setPower(0);

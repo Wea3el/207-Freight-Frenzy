@@ -445,7 +445,7 @@ public class BlueEncoderThings extends OpMode {
                     target = 700;
                 }
                 else{
-                    target = 230;
+                    target = 200;
 
                 }
                 lift(target,0.3);
@@ -472,13 +472,13 @@ public class BlueEncoderThings extends OpMode {
             case(14):
                 target = 0;
                 if(place ==1 ){
-                    target = cmToTicks(59);
-                }
-                else if(place == 2){
                     target = cmToTicks(60);
                 }
+                else if(place == 2){
+                    target = cmToTicks(60.5);
+                }
                 else{
-                    target = cmToTicks(62);
+                    target = cmToTicks(61.5);
 
                 }
 
