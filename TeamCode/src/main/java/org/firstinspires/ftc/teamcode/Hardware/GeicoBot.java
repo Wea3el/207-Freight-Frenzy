@@ -1,34 +1,18 @@
 package org.firstinspires.ftc.teamcode.Hardware;
 
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.linearOpMode;
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
-
 import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
-import com.qualcomm.robotcore.util.ReadWriteFile;
 
-import org.firstinspires.ftc.robotcontroller.external.samples.HardwarePushbot;
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
-import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
-import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
-import org.firstinspires.ftc.teamcode.Hardware.MovementEnum;
-
-import java.io.File;
-import java.util.List;
 
 public class GeicoBot
 {
@@ -105,66 +89,7 @@ public class GeicoBot
         tele.addData("Status", "Initialized");
     }
 
-    public int autonDrive(MovementEnum movement, int target) {
-        int x = -1;
-        switch (movement) {
-            case FORWARD:
-                frontLeft.setTargetPosition(target);
-                frontRight.setTargetPosition(target);
-                backLeft.setTargetPosition(target);
-                backRight.setTargetPosition(target);
-                x = Math.max(backRight.getCurrentPosition(), Math.max(backLeft.getCurrentPosition(), Math.max(frontRight.getCurrentPosition(), frontLeft.getCurrentPosition())));
-                break;
 
-            case BACKWARD:
-                frontLeft.setTargetPosition(-target);
-                frontRight.setTargetPosition(-target);
-                backLeft.setTargetPosition(-target);
-                backRight.setTargetPosition(-target);
-                x = Math.max(backRight.getCurrentPosition(), Math.max(backLeft.getCurrentPosition(), Math.max(-frontRight.getCurrentPosition(), -frontLeft.getCurrentPosition())));
-                break;
-
-            case LEFTSTRAFE:
-                frontLeft.setTargetPosition(-target);
-                frontRight.setTargetPosition(target);
-                backLeft.setTargetPosition(target);
-                backRight.setTargetPosition(-target);
-                x = Math.max(backRight.getCurrentPosition(), Math.max(backLeft.getCurrentPosition(), Math.max(frontRight.getCurrentPosition(), frontLeft.getCurrentPosition())));
-                break;
-
-            case RIGHTSTRAFE:
-                frontLeft.setTargetPosition(target);
-                frontRight.setTargetPosition(-target);
-                backLeft.setTargetPosition(-target);
-                backRight.setTargetPosition(target);
-                x = Math.max(-backRight.getCurrentPosition(), Math.max(-backLeft.getCurrentPosition(), Math.max(-frontRight.getCurrentPosition(), -frontLeft.getCurrentPosition())));
-                break;
-
-            case LEFTTURN:
-                frontLeft.setTargetPosition(-target);
-                frontRight.setTargetPosition(target);
-                backLeft.setTargetPosition(-target);
-                backRight.setTargetPosition(target);
-                x = Math.max(backRight.getCurrentPosition(), Math.max(-backLeft.getCurrentPosition(), Math.max(frontRight.getCurrentPosition(), -frontLeft.getCurrentPosition())));
-                break;
-
-            case RIGHTTURN:
-                frontLeft.setTargetPosition(target);
-                frontRight.setTargetPosition(-target);
-                backLeft.setTargetPosition(target);
-                backRight.setTargetPosition(-target);
-                x = Math.max(-backRight.getCurrentPosition(), Math.max(backLeft.getCurrentPosition(), Math.max(-frontRight.getCurrentPosition(), frontLeft.getCurrentPosition())));
-                break;
-
-            case STOP:
-                frontLeft.setTargetPosition(frontLeft.getCurrentPosition());
-                frontRight.setTargetPosition(frontRight.getCurrentPosition());
-                backLeft.setTargetPosition(backLeft.getCurrentPosition());
-                backRight.setTargetPosition(backRight.getCurrentPosition());
-                break;
-        }
-        return x;
-    }
     public void resetEncoder(){
         frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

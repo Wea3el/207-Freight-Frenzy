@@ -11,7 +11,6 @@ import java.util.HashMap;
 
 import org.opencv.core.*;
 import org.opencv.core.Core.*;
-
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.*;
 import org.opencv.objdetect.*;
@@ -24,60 +23,71 @@ import org.openftc.easyopencv.OpenCvPipeline;
  *
  * @author GRIP
  */
-public class GripPipeline extends OpenCvPipeline {
+public class GripPipeline extends OpenCvPipeline{
 
     //Outputs
+    private Mat cvResizeOutput = new Mat();
+    private Mat blurOutput = new Mat();
     private Mat cvCvtcolorOutput = new Mat();
-    private Mat hslThresholdOutput = new Mat();
-    private Mat cvErodeOutput = new Mat();
-    private Mat cvDilateOutput = new Mat();
+    private Mat hsvThresholdOutput = new Mat();
     private ArrayList<MatOfPoint> findContoursOutput = new ArrayList<MatOfPoint>();
+    private ArrayList<MatOfPoint> convexHullsOutput = new ArrayList<MatOfPoint>();
 
-
-    @Override
-    public Mat processFrame(Mat input) {
-        this.process(input);
-        return this.hslThresholdOutput();
-    }
     /**
      * This is the primary method that runs the entire pipeline and updates the outputs.
      */
     public void process(Mat source0) {
+        // Step CV_resize0:
+        Mat cvResizeSrc = source0;
+        Size cvResizeDsize = new Size(0, 0);
+        double cvResizeFx = 0.25;
+        double cvResizeFy = 0.25;
+        int cvResizeInterpolation = Imgproc.INTER_LINEAR;
+        cvResize(cvResizeSrc, cvResizeDsize, cvResizeFx, cvResizeFy, cvResizeInterpolation, cvResizeOutput);
+
+        // Step Blur0:
+        Mat blurInput = cvResizeOutput;
+        BlurType blurType = BlurType.get("Gaussian Blur");
+        double blurRadius = 8.108108108108109;
+        blur(blurInput, blurType, blurRadius, blurOutput);
+
         // Step CV_cvtColor0:
-        Mat cvCvtcolorSrc = source0;
-        int cvCvtcolorCode = Imgproc.COLOR_Lab2LBGR;
+        Mat cvCvtcolorSrc = blurOutput;
+        int cvCvtcolorCode = Imgproc.COLOR_BGR2HSV_FULL;
         cvCvtcolor(cvCvtcolorSrc, cvCvtcolorCode, cvCvtcolorOutput);
 
-        // Step HSL_Threshold0:
-        Mat hslThresholdInput = cvCvtcolorOutput;
-        double[] hslThresholdHue = {0.0, 31.02389078498294};
-        double[] hslThresholdSaturation = {202.4120050107129, 255.0};
-        double[] hslThresholdLuminance = {0.0, 255.0};
-        hslThreshold(hslThresholdInput, hslThresholdHue, hslThresholdSaturation, hslThresholdLuminance, hslThresholdOutput);
-
-        // Step CV_erode0:
-        Mat cvErodeSrc = hslThresholdOutput;
-        Mat cvErodeKernel = new Mat();
-        Point cvErodeAnchor = new Point(-1, -1);
-        double cvErodeIterations = 5.0;
-        int cvErodeBordertype = Core.BORDER_CONSTANT;
-        Scalar cvErodeBordervalue = new Scalar(-1);
-        cvErode(cvErodeSrc, cvErodeKernel, cvErodeAnchor, cvErodeIterations, cvErodeBordertype, cvErodeBordervalue, cvErodeOutput);
-
-        // Step CV_dilate0:
-        Mat cvDilateSrc = cvErodeOutput;
-        Mat cvDilateKernel = new Mat();
-        Point cvDilateAnchor = new Point(-1, -1);
-        double cvDilateIterations = 10.0;
-        int cvDilateBordertype = Core.BORDER_CONSTANT;
-        Scalar cvDilateBordervalue = new Scalar(-1);
-        cvDilate(cvDilateSrc, cvDilateKernel, cvDilateAnchor, cvDilateIterations, cvDilateBordertype, cvDilateBordervalue, cvDilateOutput);
+        // Step HSV_Threshold0:
+        Mat hsvThresholdInput = cvCvtcolorOutput;
+        double[] hsvThresholdHue = {3.237410071942446, 34.54545454545454};
+        double[] hsvThresholdSaturation = {128.41726618705036, 201.3383838383838};
+        double[] hsvThresholdValue = {96.31294964028777, 255.0};
+        hsvThreshold(hsvThresholdInput, hsvThresholdHue, hsvThresholdSaturation, hsvThresholdValue, hsvThresholdOutput);
 
         // Step Find_Contours0:
-        Mat findContoursInput = cvDilateOutput;
+        Mat findContoursInput = hsvThresholdOutput;
         boolean findContoursExternalOnly = false;
         findContours(findContoursInput, findContoursExternalOnly, findContoursOutput);
 
+        // Step Convex_Hulls0:
+        ArrayList<MatOfPoint> convexHullsContours = findContoursOutput;
+        convexHulls(convexHullsContours, convexHullsOutput);
+
+    }
+
+    /**
+     * This method is a generated getter for the output of a CV_resize.
+     * @return Mat output from CV_resize.
+     */
+    public Mat cvResizeOutput() {
+        return cvResizeOutput;
+    }
+
+    /**
+     * This method is a generated getter for the output of a Blur.
+     * @return Mat output from Blur.
+     */
+    public Mat blurOutput() {
+        return blurOutput;
     }
 
     /**
@@ -89,29 +99,11 @@ public class GripPipeline extends OpenCvPipeline {
     }
 
     /**
-     * This method is a generated getter for the output of a HSL_Threshold.
-     * @return Mat output from HSL_Threshold.
+     * This method is a generated getter for the output of a HSV_Threshold.
+     * @return Mat output from HSV_Threshold.
      */
-    public Mat hslThresholdOutput() {
-        return hslThresholdOutput;
-    }
-
-    /**
-     * This method is a generated getter for the output of a CV_erode.
-     * @return Mat output from CV_erode.
-     */
-    public Mat cvErodeOutput() {
-        return cvErodeOutput;
-    }
-
-
-
-    /**
-     * This method is a generated getter for the output of a CV_dilate.
-     * @return Mat output from CV_dilate.
-     */
-    public Mat cvDilateOutput() {
-        return cvDilateOutput;
+    public Mat hsvThresholdOutput() {
+        return hsvThresholdOutput;
     }
 
     /**
@@ -122,6 +114,102 @@ public class GripPipeline extends OpenCvPipeline {
         return findContoursOutput;
     }
 
+    /**
+     * This method is a generated getter for the output of a Convex_Hulls.
+     * @return ArrayList<MatOfPoint> output from Convex_Hulls.
+     */
+    public ArrayList<MatOfPoint> convexHullsOutput() {
+        return convexHullsOutput;
+    }
+
+
+    /**
+     * Resizes an image.
+     * @param src The image to resize.
+     * @param dSize size to set the image.
+     * @param fx scale factor along X axis.
+     * @param fy scale factor along Y axis.
+     * @param interpolation type of interpolation to use.
+     * @param dst output image.
+     */
+    private void cvResize(Mat src, Size dSize, double fx, double fy, int interpolation,
+                          Mat dst) {
+        if (dSize==null) {
+            dSize = new Size(0,0);
+        }
+        Imgproc.resize(src, dst, dSize, fx, fy, interpolation);
+    }
+
+    @Override
+    public Mat processFrame(Mat input) {
+        this.process(input);
+        return this.hsvThresholdOutput;
+    }
+
+    /**
+     * An indication of which type of filter to use for a blur.
+     * Choices are BOX, GAUSSIAN, MEDIAN, and BILATERAL
+     */
+    enum BlurType{
+        BOX("Box Blur"), GAUSSIAN("Gaussian Blur"), MEDIAN("Median Filter"),
+        BILATERAL("Bilateral Filter");
+
+        private final String label;
+
+        BlurType(String label) {
+            this.label = label;
+        }
+
+        public static BlurType get(String type) {
+            if (BILATERAL.label.equals(type)) {
+                return BILATERAL;
+            }
+            else if (GAUSSIAN.label.equals(type)) {
+                return GAUSSIAN;
+            }
+            else if (MEDIAN.label.equals(type)) {
+                return MEDIAN;
+            }
+            else {
+                return BOX;
+            }
+        }
+
+        @Override
+        public String toString() {
+            return this.label;
+        }
+    }
+
+    /**
+     * Softens an image using one of several filters.
+     * @param input The image on which to perform the blur.
+     * @param type The blurType to perform.
+     * @param doubleRadius The radius for the blur.
+     * @param output The image in which to store the output.
+     */
+    private void blur(Mat input, BlurType type, double doubleRadius,
+                      Mat output) {
+        int radius = (int)(doubleRadius + 0.5);
+        int kernelSize;
+        switch(type){
+            case BOX:
+                kernelSize = 2 * radius + 1;
+                Imgproc.blur(input, output, new Size(kernelSize, kernelSize));
+                break;
+            case GAUSSIAN:
+                kernelSize = 6 * radius + 1;
+                Imgproc.GaussianBlur(input,output, new Size(kernelSize, kernelSize), radius);
+                break;
+            case MEDIAN:
+                kernelSize = 2 * radius + 1;
+                Imgproc.medianBlur(input, output, kernelSize);
+                break;
+            case BILATERAL:
+                Imgproc.bilateralFilter(input, output, -1, radius, radius);
+                break;
+        }
+    }
 
     /**
      * Converts an image from one color space to another.
@@ -134,73 +222,27 @@ public class GripPipeline extends OpenCvPipeline {
     }
 
     /**
-     * Segment an image based on hue, saturation, and luminance ranges.
+     * Segment an image based on hue, saturation, and value ranges.
      *
      * @param input The image on which to perform the HSL threshold.
      * @param hue The min and max hue
      * @param sat The min and max saturation
-     * @param lum The min and max luminance
-     * @param out The image in which to store the output.
+     * @param val The min and max value
+     * /@param output The image in which to store the output.
      */
-    private void hslThreshold(Mat input, double[] hue, double[] sat, double[] lum,
+    private void hsvThreshold(Mat input, double[] hue, double[] sat, double[] val,
                               Mat out) {
-        Imgproc.cvtColor(input, out, Imgproc.COLOR_BGR2HLS);
-        Core.inRange(out, new Scalar(hue[0], lum[0], sat[0]),
-                new Scalar(hue[1], lum[1], sat[1]), out);
-    }
-
-    /**
-     * Expands area of lower value in an image.
-     * @param src the Image to erode.
-     * @param kernel the kernel for erosion.
-     * @param anchor the center of the kernel.
-     * @param iterations the number of times to perform the erosion.
-     * @param borderType pixel extrapolation method.
-     * @param borderValue value to be used for a constant border.
-     * @param dst Output Image.
-     */
-    private void cvErode(Mat src, Mat kernel, Point anchor, double iterations,
-                         int borderType, Scalar borderValue, Mat dst) {
-        if (kernel == null) {
-            kernel = new Mat();
-        }
-        if (anchor == null) {
-            anchor = new Point(-1,-1);
-        }
-        if (borderValue == null) {
-            borderValue = new Scalar(-1);
-        }
-        Imgproc.erode(src, dst, kernel, anchor, (int)iterations, borderType, borderValue);
-    }
-
-    /**
-     * Expands area of higher value in an image.
-     * @param src the Image to dilate.
-     * @param kernel the kernel for dilation.
-     * @param anchor the center of the kernel.
-     * @param iterations the number of times to perform the dilation.
-     * @param borderType pixel extrapolation method.
-     * @param borderValue value to be used for a constant border.
-     * @param dst Output Image.
-     */
-    private void cvDilate(Mat src, Mat kernel, Point anchor, double iterations,
-                          int borderType, Scalar borderValue, Mat dst) {
-        if (kernel == null) {
-            kernel = new Mat();
-        }
-        if (anchor == null) {
-            anchor = new Point(-1,-1);
-        }
-        if (borderValue == null){
-            borderValue = new Scalar(-1);
-        }
-        Imgproc.dilate(src, dst, kernel, anchor, (int)iterations, borderType, borderValue);
+        Imgproc.cvtColor(input, out, Imgproc.COLOR_BGR2HSV);
+        Core.inRange(out, new Scalar(hue[0], sat[0], val[0]),
+                new Scalar(hue[1], sat[1], val[1]), out);
     }
 
     /**
      * Sets the values of pixels in a binary image to their distance to the nearest black pixel.
      * @param input The image on which to perform the Distance Transform.
-
+     * /@param type The Transform.
+     * /@param maskSize the size of the mask.
+     * /@param output The image in which to store the output.
      */
     private void findContours(Mat input, boolean externalOnly,
                               List<MatOfPoint> contours) {
@@ -217,6 +259,28 @@ public class GripPipeline extends OpenCvPipeline {
         Imgproc.findContours(input, contours, hierarchy, mode, method);
     }
 
+    /**
+     * Compute the convex hulls of contours.
+     * @param inputContours The contours on which to perform the operation.
+     * @param outputContours The contours where the output will be stored.
+     */
+    private void convexHulls(List<MatOfPoint> inputContours,
+                             ArrayList<MatOfPoint> outputContours) {
+        final MatOfInt hull = new MatOfInt();
+        outputContours.clear();
+        for (int i = 0; i < inputContours.size(); i++) {
+            final MatOfPoint contour = inputContours.get(i);
+            final MatOfPoint mopHull = new MatOfPoint();
+            Imgproc.convexHull(contour, hull);
+            mopHull.create((int) hull.size().height, 1, CvType.CV_32SC2);
+            for (int j = 0; j < hull.size().height; j++) {
+                int index = (int) hull.get(j, 0)[0];
+                double[] point = new double[] {contour.get(index, 0)[0], contour.get(index, 0)[1]};
+                mopHull.put(j, 0, point);
+            }
+            outputContours.add(mopHull);
+        }
+    }
 
 
 
