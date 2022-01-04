@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -26,7 +27,9 @@ public class Intake {
     }
 
     //different methods to do whatever needs to be done for this file, in this case, only intake and outtake
-    public void intake(){
+    public void intake(Gamepad gamepad2){
+        intake.setPower(gamepad2.left_stick_y);
+
 
     }
     public void outake(){
