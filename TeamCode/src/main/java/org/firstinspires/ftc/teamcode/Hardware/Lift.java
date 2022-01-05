@@ -27,8 +27,32 @@ public class Lift {
         gateOut.setPosition(0);
         slope.setPosition(0);
 
+
+        }
+
+    public void slide(double power) {
+        slideLeft.setPower(power);
+        slideRight.setPower(power);
     }
+        public void GateInClose () {
+            gateIn.setPosition(1);
+        }
+
+        public void GateInOpen () {
+        gateIn.setPosition(0);
+        }
+
+        public void GateOutOpen () {
+        gateOut.setPosition (0);
+        }
+
+        public void GateOutClose () {
+        gateOut.setPosition (1);
+        }
+
+        }
 
 
-    }
+
+
 
