@@ -27,12 +27,11 @@ public class Intake {
     }
 
     //different methods to do whatever needs to be done for this file, in this case, only intake and outtake
-    public void intake(Gamepad gamepad2){
-        intake.setPower(gamepad2.left_stick_y);
+    public void intake(double power){
+        intake.setPower(power);
 
 
     }
-    public void outake() {
 
     }
-}
+
