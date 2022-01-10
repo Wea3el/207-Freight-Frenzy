@@ -1,10 +1,8 @@
 package org.firstinspires.ftc.teamcode.OpenCV;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.OpenCV.OldGripPipeline;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Rect;
 import org.opencv.imgproc.Imgproc;
@@ -15,21 +13,21 @@ import org.openftc.easyopencv.OpenCvWebcam;
 
 import java.util.List;
 
-@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="camera", group="Iterative Opmode")
-public class VisionTest extends OpMode {
+public class OldVisionWrapper {
     private OpenCvWebcam webcam;
     private DetectionLevel level;
-    private GripPipeline grip;
+    private OldGripPipeline grip;
 
     private static final int CAMERA_WIDTH = 1280;
 
-    @Override
-    public void init() {
-        grip = new GripPipeline();
+    public void init(HardwareMap hmap){
+        grip = new OldGripPipeline();
+        initVision(hmap);
+    }
 
-
-        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "pp"), cameraMonitorViewId);
+    private void initVision(HardwareMap hmap){
+        int cameraMonitorViewId = hmap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hmap.appContext.getPackageName());
+        webcam = OpenCvCameraFactory.getInstance().createWebcam(hmap.get(WebcamName.class, "pp"), cameraMonitorViewId);
 
         webcam.setPipeline(grip);
         webcam.setMillisecondsPermissionTimeout(2500); // Timeout for obtaining permission is configurable. Set before opening.
@@ -42,15 +40,9 @@ public class VisionTest extends OpMode {
             @Override
             public void onError(int errorCode){ }
         });
-        telemetry.addData("status", "initialized");
-        telemetry.update();
     }
 
-    @Override
-    public void loop() {
 
-        telemetry.update();
-    }
 
     private void updateDetermination(){
         List<MatOfPoint> hulls = grip.findContoursOutput();
@@ -87,11 +79,11 @@ public class VisionTest extends OpMode {
     }
 
     public DetectionLevel currentDetermination(){
-        updateDetermination();
+        this.updateDetermination();
         return this.level;
     }
 
-    public void stop(){  }
+    public void stop(){ webcam.stopStreaming(); }
 
     public enum DetectionLevel{
         LEVEL_ONE("1 - Lowest level"), LEVEL_TWO("2 - Second level"),

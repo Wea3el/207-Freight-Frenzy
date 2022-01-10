@@ -39,9 +39,9 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.OpenCV.VisionWrapper;
 
-@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="Blue", group="Iterative Opmode")
+@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="NewBotBlue", group="Iterative Opmode")
 //@Disabled
-public class Blue extends OpMode
+public class NewBotBlue extends OpMode
 {
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
@@ -50,14 +50,24 @@ public class Blue extends OpMode
     private DcMotor backLeft;
     private DcMotor frontLeft;
     private DcMotor intake;
+
+    // duck
     private DcMotor duck;
-    private DcMotor lift;
+
     private double power;
     private double strafePower;
-    private Servo spit;
     private double speed = 1;
     private boolean xHeld;
     private boolean yHeld;
+
+    // lift motors
+    private DcMotor leftLift;
+    private DcMotor rightLift;
+
+    // intake and outtake servos
+    private Servo gateIn;
+    private Servo slope;
+    private Servo gateOut;
 
     private VisionWrapper visionWrapper;
 
@@ -75,8 +85,12 @@ public class Blue extends OpMode
         frontLeft = hardwareMap.get(DcMotor.class, "FL");
         intake = hardwareMap.get(DcMotor.class, "intake");
         duck = hardwareMap.get(DcMotor.class, "duck");
-        lift = hardwareMap.get(DcMotor.class, "lift");
-        spit = hardwareMap.get(Servo.class, "spit");
+        leftLift = hardwareMap.get(DcMotor.class, "leftLift");
+        rightLift = hardwareMap.get(DcMotor.class, "rightLift");
+
+        gateIn = hardwareMap.get(Servo.class, "gateIn");
+        slope = hardwareMap.get(Servo.class, "slope");
+        gateOut = hardwareMap.get(Servo.class, "gateOut");
 
         frontRight.setDirection(DcMotor.Direction.FORWARD);
         backRight.setDirection(DcMotor.Direction.FORWARD);
@@ -87,14 +101,16 @@ public class Blue extends OpMode
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
         frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
-        lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
         duck.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
+        leftLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
+        rightLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
 
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         visionWrapper = new VisionWrapper();
         visionWrapper.init(hardwareMap);
@@ -145,16 +161,32 @@ public class Blue extends OpMode
             backRight.setPower(gamepad1.right_stick_y * speed );
             backLeft.setPower(gamepad1.left_stick_y * speed);
             intake.setPower(gamepad2.left_stick_y);
-            lift.setPower(gamepad2.right_stick_y *0.5);
+            leftLift.setPower(gamepad2.right_stick_y *0.5);
+            rightLift.setPower(gamepad2.right_stick_y *0.5);
 
-        }
+            if(gamepad2.left_stick_y == 0f)
+            {
+                // default position aka pp down
 
+                gateIn.setPosition(0);
+            }
+            else if(gamepad2.left_stick_y > 0.1f)
+            {
+                // pp up position
 
-        if(gamepad2.b){
-            spit.setPosition(1);
-        }
-        else{
-            spit.setPosition(0);
+                gateIn.setPosition(1);
+            }
+
+            if(gamepad2.b)
+            {
+                gateOut.setPosition(1);
+                slope.setPosition(1);
+            }
+            else
+            {
+                gateOut.setPosition(0);
+                slope.setPosition(0);
+            }
         }
 
         if(gamepad2.x){
@@ -198,8 +230,7 @@ public class Blue extends OpMode
         telemetry.addData("frontRight", frontRight.getCurrentPosition());
         telemetry.addData("backRight", backRight.getCurrentPosition());
         telemetry.addData("backLeft", backLeft.getCurrentPosition());
-        telemetry.addData("lift", lift.getCurrentPosition());
-        telemetry.addData("spit", spit.getPosition());
+        telemetry.addData("lift", rightLift.getCurrentPosition());
         telemetry.addData("SPEED", power);
 
         telemetry.addData("BIG CAMERA", visionWrapper.currentDetermination());
