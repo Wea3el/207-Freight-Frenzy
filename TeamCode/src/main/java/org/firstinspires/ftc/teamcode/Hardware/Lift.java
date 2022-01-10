@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.Hardware;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class Lift {
@@ -27,9 +26,7 @@ public class Lift {
         gateIn.setPosition(0);
         gateOut.setPosition(0);
         slope.setPosition(0);
-
-
-        }
+    }
 
     public void slide(double power) {
         slideLeft.setPower(power);
