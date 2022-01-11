@@ -35,6 +35,7 @@ package org.firstinspires.ftc.teamcode.Teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -43,7 +44,7 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.OpenCV.VisionWrapper;
 
-@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="NewBotBlue", group="Iterative Opmode")
+@TeleOp(name="NewBotBlue", group="Iterative Opmode")
 //@Disabled
 public class NewBotBlue extends OpMode
 {
