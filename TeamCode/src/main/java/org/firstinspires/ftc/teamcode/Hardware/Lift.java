@@ -48,4 +48,5 @@ public class Lift {
         gateOut.setPosition (1);
         }
 
+        // servo gateOut is 0.5 when closed and either 0 or 1 when open
 }

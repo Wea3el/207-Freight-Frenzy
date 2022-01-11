@@ -235,6 +235,10 @@ public class NewBotBlue extends OpMode
 
         telemetry.addData("BIG CAMERA", visionWrapper.currentDetermination());
 
+        telemetry.addData("gateIn", gateIn.getPosition());
+        telemetry.addData("gateOut", gateOut.getPosition());
+        telemetry.addData("slope", slope.getPosition());
+
         telemetry.update();
 
         // Send calculated power to wheels
