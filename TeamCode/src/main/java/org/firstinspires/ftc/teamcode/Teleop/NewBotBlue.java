@@ -29,6 +29,10 @@
 
 package org.firstinspires.ftc.teamcode.Teleop;
 
+//----------------------------
+// WIFI PASSWORD IS PAGNOM207
+//----------------------------
+
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;

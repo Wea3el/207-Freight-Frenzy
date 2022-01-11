@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.OpenCV.VisionWrapper;
 
-@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="NewBotBlue", group="Iterative Opmode")
+@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="RobotClass", group="Iterative Opmode")
 //@Disabled
 
 public class Robot {
