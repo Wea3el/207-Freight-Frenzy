@@ -28,7 +28,7 @@ import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import java.io.File;
 import java.util.List;
 
-@Disabled
+//@Disabled
 @Autonomous(name = "BlueEncoderThings", group = "Testing")
 public class BlueEncoderThings extends OpMode {
 

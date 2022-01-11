@@ -22,7 +22,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 
 import java.io.File;
-@Disabled
+//@Disabled
 @Autonomous(name = "EncoderThings", group = "Testing")
 public class EncoderThings extends OpMode {
     private ElapsedTime runtime = new ElapsedTime();
