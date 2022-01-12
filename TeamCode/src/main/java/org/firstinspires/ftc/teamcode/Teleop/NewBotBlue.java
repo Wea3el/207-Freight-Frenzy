@@ -180,12 +180,12 @@ public class NewBotBlue extends OpMode
             if(gamepad2.b)
             {
                 gateOut.setPosition(1);
-                slope.setPosition(1);
+               // slope.setPosition(1);
             }
             else
             {
                 gateOut.setPosition(0);
-                slope.setPosition(0);
+                //slope.setPosition(0);
             }
         }
 
@@ -232,6 +232,8 @@ public class NewBotBlue extends OpMode
         telemetry.addData("backLeft", backLeft.getCurrentPosition());
         telemetry.addData("lift", rightLift.getCurrentPosition());
         telemetry.addData("SPEED", power);
+
+        telemetry.addData("platform pos", slope.getPosition());
 
         telemetry.addData("BIG CAMERA", visionWrapper.currentDetermination());
 
