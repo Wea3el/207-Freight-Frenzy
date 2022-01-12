@@ -177,13 +177,11 @@ public class NewBotBlue extends OpMode
                 gateIn.setPosition(1);
             }
 
-            if(gamepad2.b)
-            {
+            if(gamepad2.b) {
                 gateOut.setPosition(1);
-               slope.setPosition(1);
+                slope.setPosition(1);
             }
-            else
-            {
+            else {
                 gateOut.setPosition(0);
                 slope.setPosition(0);
             }
