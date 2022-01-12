@@ -29,8 +29,13 @@
 
 package org.firstinspires.ftc.teamcode.Teleop;
 
+//----------------------------
+// WIFI PASSWORD IS PAGNOM207
+//----------------------------
+
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -39,7 +44,7 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.OpenCV.VisionWrapper;
 
-@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="NewBotBlue", group="Iterative Opmode")
+@TeleOp(name="NewBotBlue", group="Iterative Opmode")
 //@Disabled
 public class NewBotBlue extends OpMode
 {
@@ -69,6 +74,8 @@ public class NewBotBlue extends OpMode
     private Servo slope;
     private Servo gateOut;
 
+    private Servo cap;
+
     private VisionWrapper visionWrapper;
 
     /*
@@ -91,6 +98,8 @@ public class NewBotBlue extends OpMode
         gateIn = hardwareMap.get(Servo.class, "gateIn");
         slope = hardwareMap.get(Servo.class, "slope");
         gateOut = hardwareMap.get(Servo.class, "gateOut");
+
+        leftLift.setDirection(DcMotorSimple.Direction.REVERSE);
 
         frontRight.setDirection(DcMotor.Direction.FORWARD);
         backRight.setDirection(DcMotor.Direction.FORWARD);
@@ -168,7 +177,7 @@ public class NewBotBlue extends OpMode
             {
                 // default position aka pp down
 
-                gateIn.setPosition(0);
+                gateIn.setPosition(0.33);
             }
             else if(gamepad2.left_stick_y > 0.1f)
             {
@@ -177,13 +186,15 @@ public class NewBotBlue extends OpMode
                 gateIn.setPosition(1);
             }
 
-            if(gamepad2.b) {
+            if(gamepad2.b)
+            {
                 gateOut.setPosition(1);
-                slope.setPosition(1);
+                slope.setPosition(0.2);
             }
-            else {
-                gateOut.setPosition(0);
-                slope.setPosition(0);
+            else
+            {
+                gateOut.setPosition(0.5);
+                slope.setPosition(0.7);
             }
         }
 
@@ -229,11 +240,14 @@ public class NewBotBlue extends OpMode
         telemetry.addData("backRight", backRight.getCurrentPosition());
         telemetry.addData("backLeft", backLeft.getCurrentPosition());
         telemetry.addData("lift", rightLift.getCurrentPosition());
+        telemetry.addData("duck", duck.getCurrentPosition());
         telemetry.addData("SPEED", power);
 
-        telemetry.addData("platform pos", slope.getPosition());
-
         telemetry.addData("BIG CAMERA", visionWrapper.currentDetermination());
+
+        telemetry.addData("gateIn", gateIn.getPosition());
+        telemetry.addData("gateOut", gateOut.getPosition());
+        telemetry.addData("slope", slope.getPosition());
 
         telemetry.update();
 

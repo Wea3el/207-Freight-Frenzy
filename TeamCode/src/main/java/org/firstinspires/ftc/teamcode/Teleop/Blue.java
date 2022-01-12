@@ -40,7 +40,7 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.teamcode.OpenCV.VisionWrapper;
 
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="Blue", group="Iterative Opmode")
-//@Disabled
+@Disabled
 public class Blue extends OpMode
 {
     // Declare OpMode members.

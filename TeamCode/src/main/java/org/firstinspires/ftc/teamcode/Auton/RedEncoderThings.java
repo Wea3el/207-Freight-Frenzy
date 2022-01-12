@@ -6,6 +6,7 @@ import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.tel
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -23,24 +24,44 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
+import org.firstinspires.ftc.teamcode.OpenCV.VisionWrapper;
 
 import java.io.File;
 import java.util.List;
-
+//@Disabled
 @Autonomous(name = "RedEncoderThings", group = "Testing")
 public class RedEncoderThings extends OpMode {
+    private double power;
+    private double strafePower;
+
+    // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotor frontRight;
     private DcMotor backRight;
     private DcMotor backLeft;
     private DcMotor frontLeft;
     private DcMotor intake;
-    private DcMotor duck; // duck
-    private DcMotor lift;
-    private double power;
-    private double strafePower;
-    private Servo spit;
-    private double speed;
+
+    // duck
+    private DcMotor duck;
+
+    private double speed = 1;
+    private boolean xHeld;
+    private boolean yHeld;
+
+    // lift motors
+    private DcMotor leftLift;
+    private DcMotor rightLift;
+
+    // intake and outtake servos
+    private Servo gateIn;
+    private Servo slope;
+    private Servo gateOut;
+
+    private Servo cap;
+
+    private VisionWrapper visionWrapper;
+
     final double     HEADING_THRESHOLD       = 5;      // As tight as we can make it with an integer gyro
     BNO055IMU imu;
     BNO055IMU.Parameters parameters;
@@ -99,8 +120,12 @@ public class RedEncoderThings extends OpMode {
         frontLeft = hardwareMap.get(DcMotor.class, "FL");
         intake = hardwareMap.get(DcMotor.class, "intake");
         duck = hardwareMap.get(DcMotor.class, "duck");
-        lift = hardwareMap.get(DcMotor.class, "lift");
-        spit = hardwareMap.get(Servo.class, "spit");
+        leftLift = hardwareMap.get(DcMotor.class, "leftLift");
+        rightLift = hardwareMap.get(DcMotor.class, "rightLift");
+
+        gateIn = hardwareMap.get(Servo.class, "gateIn");
+        slope = hardwareMap.get(Servo.class, "slope");
+        gateOut = hardwareMap.get(Servo.class, "gateOut");
 
         frontLeft.setDirection(DcMotor.Direction.REVERSE);
         backLeft.setDirection(DcMotor.Direction.REVERSE);
@@ -111,21 +136,25 @@ public class RedEncoderThings extends OpMode {
         backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
         frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
-        lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
+        leftLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
+        rightLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
 
+        gateIn.setPosition(0.33);
+        gateOut.setPosition(0.5);
+        slope.setPosition(0.7);
 
         pos = 0;
 
         imu.initialize(parameters);
         initVuforia();
         initTfod();
-        spit.setPosition(0);
 
         /**
          * Activate TensorFlow Object Detection before we wait for the start command.
@@ -173,15 +202,18 @@ public class RedEncoderThings extends OpMode {
         int pos = targetPos;
 
 
-        lift.setTargetPosition(pos);
+        leftLift.setTargetPosition(pos);
+        rightLift.setTargetPosition(pos);
 
 
 
 
-        lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
 
-        lift.setPower(speed);
+        leftLift.setPower(speed);
+        rightLift.setPower(speed);
 
 
     }
@@ -428,7 +460,8 @@ public class RedEncoderThings extends OpMode {
                 backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
-                lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+                leftLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+                rightLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
                 auto++;
                 runtime.reset();
                 break;
@@ -462,7 +495,8 @@ public class RedEncoderThings extends OpMode {
                 backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
-                lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+                leftLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+                rightLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
                 auto++;
                 runtime.reset();
                 break;
@@ -488,7 +522,14 @@ public class RedEncoderThings extends OpMode {
                     backRight.setPower(0);
                     frontLeft.setPower(0);
                     frontRight.setPower(0);
-                    spit.setPosition(0.7);
+
+                    gateIn.setPosition(1);
+                    gateOut.setPosition(1);
+                    slope.setPosition(0);
+
+//                    gateIn.setPosition(0.33);
+//                    gateOut.setPosition(0.5);
+//                    slope.setPosition(0.7);
 
                 }
                 runtime.reset();
@@ -514,7 +555,11 @@ public class RedEncoderThings extends OpMode {
 
                 if(cmToTicks(-100)>(frontLeft.getCurrentPosition())){
                     auto++;
-                    spit.setPosition(0);
+
+                    gateIn.setPosition(0.33);
+                    gateOut.setPosition(0.5);
+                    slope.setPosition(0.7);
+
                     backLeft.setPower(0);
                     backRight.setPower(0);
                     frontLeft.setPower(0);
@@ -577,7 +622,11 @@ public class RedEncoderThings extends OpMode {
                 }
                 break;
             case(21):
-                lift.setPower(0);
+
+                gateIn.setPosition(0.33);
+                gateOut.setPosition(0.5);
+                slope.setPosition(0.7);
+
                 backLeft.setPower(0);
                 backRight.setPower(0);
                 frontLeft.setPower(0);
@@ -598,7 +647,11 @@ public class RedEncoderThings extends OpMode {
         telemetry.addData("frontRight", frontRight.getCurrentPosition());
         telemetry.addData("backRight", backRight.getCurrentPosition());
         telemetry.addData("backLeft", backLeft.getCurrentPosition());
-        telemetry.addData("lift", lift.getCurrentPosition());
+
+        telemetry.addData("gateIn", gateIn.getPosition());
+        telemetry.addData("gateOut", gateOut.getPosition());
+        telemetry.addData("slope", slope.getPosition());
+
         telemetry.addData("Status", imu.getSystemStatus().toShortString());
         telemetry.addData("Calib Status", imu.getCalibrationStatus().toString());
         telemetry.addData("Gyro Calib?", imu.isGyroCalibrated());
