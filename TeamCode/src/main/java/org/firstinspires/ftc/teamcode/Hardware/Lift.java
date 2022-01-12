@@ -29,8 +29,8 @@ public class Lift {
     }
 
     public void slide(double power) {
-        slideLeft.setPower(power);
-        slideRight.setPower(power);
+        slideLeft.setPower(1);
+        slideRight.setPower(1);
     }
         public void GateInClose () {
             gateIn.setPosition(1);

@@ -178,23 +178,14 @@ public class NewBotBlue extends OpMode
                 // default position aka pp down
 
                 gateIn.setPosition(0.33);
+                slope.setPosition(0.7);
             }
             else if(gamepad2.left_stick_y > 0.1f)
             {
                 // pp up position
 
                 gateIn.setPosition(1);
-            }
-
-            if(gamepad2.b)
-            {
-                gateOut.setPosition(1);
-                slope.setPosition(0.2);
-            }
-            else
-            {
-                gateOut.setPosition(0.5);
-                slope.setPosition(0.7);
+                slope.setPosition(0.3);
             }
         }
 
