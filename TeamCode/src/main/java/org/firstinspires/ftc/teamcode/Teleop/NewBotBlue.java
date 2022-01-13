@@ -124,6 +124,8 @@ public class NewBotBlue extends OpMode
         visionWrapper = new VisionWrapper();
         visionWrapper.init(hardwareMap);
 
+        slope.setPosition(0.2);
+
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
     }
@@ -170,31 +172,35 @@ public class NewBotBlue extends OpMode
             backRight.setPower(gamepad1.right_stick_y * speed );
             backLeft.setPower(gamepad1.left_stick_y * speed);
             intake.setPower(gamepad2.left_stick_y);
-            leftLift.setPower(gamepad2.right_stick_y *0.5);
-            rightLift.setPower(gamepad2.right_stick_y *0.5);
+//            leftLift.setPower(gamepad2.right_stick_y *0.5);
+//            rightLift.setPower(gamepad2.right_stick_y *0.5);
+
+            leftLift.setPower(gamepad2.right_stick_y);
+            rightLift.setPower(gamepad2.right_stick_y);
 
             if(gamepad2.left_stick_y == 0f)
             {
                 // default position aka pp down
 
                 gateIn.setPosition(0.33);
+                slope.setPosition(0.2);
             }
             else if(gamepad2.left_stick_y > 0.1f)
             {
                 // pp up position
 
                 gateIn.setPosition(1);
+                slope.setPosition(0.7);
             }
 
             if(gamepad2.b)
             {
                 gateOut.setPosition(1);
-                slope.setPosition(0.2);
+
             }
             else
             {
                 gateOut.setPosition(0.5);
-                slope.setPosition(0.7);
             }
         }
 
