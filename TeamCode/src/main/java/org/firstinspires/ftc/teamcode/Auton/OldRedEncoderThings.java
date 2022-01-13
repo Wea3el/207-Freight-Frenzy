@@ -28,9 +28,9 @@ import org.firstinspires.ftc.teamcode.OpenCV.VisionWrapper;
 
 import java.io.File;
 import java.util.List;
-//@Disabled
-@Autonomous(name = "BlueEncoderThings", group = "Testing")
-public class BlueEncoderThings extends OpMode {
+@Disabled
+@Autonomous(name = "OldRedEncoderThings", group = "Testing")
+public class OldRedEncoderThings extends OpMode {
     private double power;
     private double strafePower;
 
@@ -248,7 +248,7 @@ public class BlueEncoderThings extends OpMode {
     @Override
     public void init_loop() {
         telemetry.addData("Gyro Calib?", imu.isGyroCalibrated());
-        telemetry.addData("heading", imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).thirdAngle);
+        telemetry.addData("heading", imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle);
         if (tfod != null) {
             // getUpdatedRecognitions() will return null if no new information is available since
             // the last time that call was made.
@@ -316,365 +316,336 @@ public class BlueEncoderThings extends OpMode {
         {
             case 0:
 
-                // camera detection stuff go go go
 
-                auto++;
-                break;
-            case 1:
-
-                drive(cmToTicks(6.5), 0.3);
-
-                auto++;
-                break;
-            case 2:
-
-//                if(onHeading(90) & runtime.milliseconds()>2500) {
-//                    auto++;
-//                    backLeft.setPower(0);
-//                    backRight.setPower(0);
-//                    frontLeft.setPower(0);
-//                    frontRight.setPower(0);
-//                }
-
-                if(onHeading(180))
-                {
-                    auto++;
-                }
-
-                break;
-            case 3:
-
-                strafe(920, 0.3, -1);
-                auto++;
 
                 break;
         }
 
-//
-//        switch(auto){
-//            case 0:
-//
-//
-//                drive(cmToTicks(6.5), 0.3);
-//
-//
-//                if(frontLeft.getCurrentPosition() > cmToTicks(6.5) ){
-//                    backLeft.setPower(0);
-//                    backRight.setPower(0);
-//                    frontLeft.setPower(0);
-//                    frontRight.setPower(0);
-//                    auto++;
-//
-//                }
-//                runtime.reset();
-//
-//                break;
-//
-//
-//            case(1):
-//
-//
-//                if(runtime.milliseconds() > 500){
-//                    frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//                    backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//                    backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//                    frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
-//                    auto++;
-//                }
-//
-//
-//                break;
-//
-//            case(2):
-//                strafe(920, 0.1, -1);
-//
-//
-//                if(Math.abs(frontLeft.getCurrentPosition())> 920 ){
-//                    auto++;
-//                    backLeft.setPower(0);
-//                    backRight.setPower(0);
-//                    frontLeft.setPower(0);
-//                    frontRight.setPower(0);
-//
-//                }
-//                runtime.reset();
-//                break;
-//
-//            case(3):
-//                duck.setPower(0.3);
-//                if(runtime.milliseconds()>6000){
-//                    duck.setPower(0);
-//                    auto++;
-//                    runtime.reset();
-//                }
-//
-//                break;
-//            case(4):
-//                frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//                backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//                backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//                frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
-//                auto++;
-//                runtime.reset();
-//            case(5):
-//                drive(cmToTicks(3), 1);
-//
-//
-//                if(Math.abs(frontLeft.getCurrentPosition())> cmToTicks(3) ){
-//                    auto++;
-//                    backLeft.setPower(0);
-//                    backRight.setPower(0);
-//                    frontLeft.setPower(0);
-//                    frontRight.setPower(0);
-//
-//                }
-//
-//                break;
-//
-//
-//            case(6):
-//
-//                frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
-//                backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
-//                backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
-//                frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
-//
-//                if(onHeading(90) & runtime.milliseconds()>2500) {
-//                    auto++;
-//                    backLeft.setPower(0);
-//                    backRight.setPower(0);
-//                    frontLeft.setPower(0);
-//                    frontRight.setPower(0);
-//                }
-//                break;
-//            case(7):
-//                frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//                backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//                backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//                frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
-//                auto++;
-//                runtime.reset();
-//                break;
-//            case(8):
-//
-//                strafe(1325, 0.5, -1);
-//
-//
-//                if(Math.abs(frontLeft.getCurrentPosition())> 1300 ){
-//                    auto++;
-//                    backLeft.setPower(0);
-//                    backRight.setPower(0);
-//                    frontLeft.setPower(0);
-//                    frontRight.setPower(0);
-//
-//                }
-//                runtime.reset();
-//                break;
-//            case(9):
-//                frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//                backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//                backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//                frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
-//                auto++;
-//                runtime.reset();
-//                break;
-//            case(10):
-//                frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
-//                backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
-//                backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
-//                frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
-//
-//                if(onHeading(90) & runtime.milliseconds()>1500) {
-//                    auto++;
-//                    backLeft.setPower(0);
-//                    backRight.setPower(0);
-//                    frontLeft.setPower(0);
-//                    frontRight.setPower(0);
-//                }
-//                break;
-//            case(11):
-//                frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//                backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//                backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//                frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
-//                leftLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
-//                rightLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
-//                auto++;
-//                runtime.reset();
-//                break;
-//            case(12):
-//                int target = 0;
-//                if(place ==1 ){
-//                    target = 150;
-//
-//                }
-//                else if(place == 2){
-//                    target = 700;
-//                }
-//                else{
-//                    target = 1200;
-//
-//                }
-//                lift(target,0.3);
-//                if(runtime.milliseconds()> 2000){
-//                    auto++;
-//                    backLeft.setPower(0);
-//                    backRight.setPower(0);
-//                    frontLeft.setPower(0);
-//                    frontRight.setPower(0);
-//
-//                }
-//
-//                break;
-//
-//            case(13):
-//                frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//                backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//                backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//                frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
-//                leftLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
-//                rightLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
-//                auto++;
-//                runtime.reset();
-//                break;
-//            case(14):
-//                target = 0;
-//                if(place ==1 ){
-//                    target = cmToTicks(60);
-//                }
-//                else if(place == 2){
-//                    target = cmToTicks(60.3);
-//                }
-//                else{
-//                    target = cmToTicks(59);
-//
-//                }
-//
-//                drive(target, 0.4);
-//
-//
-//                if(Math.abs(frontLeft.getCurrentPosition())> target ){
-//                    auto++;
-//                    backLeft.setPower(0);
-//                    backRight.setPower(0);
-//                    frontLeft.setPower(0);
-//                    frontRight.setPower(0);
-//
-//                    gateIn.setPosition(1);
-//                    gateOut.setPosition(1);
-//                    slope.setPosition(0);
-//
-////                    gateIn.setPosition(0.33);
-////                    gateOut.setPosition(0.5);
-////                    slope.setPosition(0.7);
-//
-//                }
-//                runtime.reset();
-//                break;
-//
-//
-//
-//            case(15):
-//                if(runtime.milliseconds() >1000){
-//                    frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//                    backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//                    backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//                    frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
-//                    auto++;
-//                    runtime.reset();
-//                }
-//
-//                break;
-//
-//            case(16):
-//                drive(-100,0.2);
-//
-//
-//                if(cmToTicks(-100)>(frontLeft.getCurrentPosition())){
-//                    auto++;
-//
+
+        switch(auto){
+            case 0:
+
+
+                drive(cmToTicks(6.5), 0.3);
+
+
+                if(frontLeft.getCurrentPosition() > cmToTicks(6.5) ){
+                    backLeft.setPower(0);
+                    backRight.setPower(0);
+                    frontLeft.setPower(0);
+                    frontRight.setPower(0);
+                    auto++;
+
+                }
+                runtime.reset();
+
+                break;
+
+
+            case(1):
+
+
+                if(runtime.milliseconds() > 500){
+                    frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+                    auto++;
+                }
+
+
+                break;
+
+            case(2):
+                strafe(920, 0.1, -1);
+
+
+                if(Math.abs(frontLeft.getCurrentPosition())> 920 ){
+                    auto++;
+                    backLeft.setPower(0);
+                    backRight.setPower(0);
+                    frontLeft.setPower(0);
+                    frontRight.setPower(0);
+
+                }
+                runtime.reset();
+                break;
+
+            case(3):
+                duck.setPower(0.3);
+                if(runtime.milliseconds()>6000){
+                    duck.setPower(0);
+                    auto++;
+                    runtime.reset();
+                }
+
+                break;
+            case(4):
+                frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+                auto++;
+                runtime.reset();
+            case(5):
+                drive(cmToTicks(3), 1);
+
+
+                if(Math.abs(frontLeft.getCurrentPosition())> cmToTicks(3) ){
+                    auto++;
+                    backLeft.setPower(0);
+                    backRight.setPower(0);
+                    frontLeft.setPower(0);
+                    frontRight.setPower(0);
+
+                }
+
+                break;
+
+
+            case(6):
+
+                frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
+                backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
+                backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
+                frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
+
+                if(onHeading(90) & runtime.milliseconds()>2500) {
+                    auto++;
+                    backLeft.setPower(0);
+                    backRight.setPower(0);
+                    frontLeft.setPower(0);
+                    frontRight.setPower(0);
+                }
+                break;
+            case(7):
+                frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+                auto++;
+                runtime.reset();
+                break;
+            case(8):
+
+                strafe(1325, 0.5, -1);
+
+
+                if(Math.abs(frontLeft.getCurrentPosition())> 1300 ){
+                    auto++;
+                    backLeft.setPower(0);
+                    backRight.setPower(0);
+                    frontLeft.setPower(0);
+                    frontRight.setPower(0);
+
+                }
+                runtime.reset();
+                break;
+            case(9):
+                frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+                auto++;
+                runtime.reset();
+                break;
+            case(10):
+                frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
+                backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
+                backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
+                frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
+
+                if(onHeading(90) & runtime.milliseconds()>1500) {
+                    auto++;
+                    backLeft.setPower(0);
+                    backRight.setPower(0);
+                    frontLeft.setPower(0);
+                    frontRight.setPower(0);
+                }
+                break;
+            case(11):
+                frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+                leftLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+                rightLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+                auto++;
+                runtime.reset();
+                break;
+            case(12):
+                int target = 0;
+                if(place ==1 ){
+                    target = 150;
+
+                }
+                else if(place == 2){
+                    target = 700;
+                }
+                else{
+                    target = 1200;
+
+                }
+                lift(target,0.3);
+                if(runtime.milliseconds()> 2000){
+                    auto++;
+                    backLeft.setPower(0);
+                    backRight.setPower(0);
+                    frontLeft.setPower(0);
+                    frontRight.setPower(0);
+
+                }
+
+                break;
+
+            case(13):
+                frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+                leftLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+                rightLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+                auto++;
+                runtime.reset();
+                break;
+            case(14):
+                target = 0;
+                if(place ==1 ){
+                    target = cmToTicks(60);
+                }
+                else if(place == 2){
+                    target = cmToTicks(60.3);
+                }
+                else{
+                    target = cmToTicks(59);
+
+                }
+
+                drive(target, 0.4);
+
+
+                if(Math.abs(frontLeft.getCurrentPosition())> target ){
+                    auto++;
+                    backLeft.setPower(0);
+                    backRight.setPower(0);
+                    frontLeft.setPower(0);
+                    frontRight.setPower(0);
+
+                    gateIn.setPosition(1);
+                    gateOut.setPosition(1);
+                    slope.setPosition(0);
+
 //                    gateIn.setPosition(0.33);
 //                    gateOut.setPosition(0.5);
 //                    slope.setPosition(0.7);
-//
-//                    backLeft.setPower(0);
-//                    backRight.setPower(0);
-//                    frontLeft.setPower(0);
-//                    frontRight.setPower(0);
-//
-//                }
-//                runtime.reset();
-//                break;
-//            case(17):
-//                frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
-//
-//                auto++;
-//                runtime.reset();
-//                break;
-//
-//            case(18):
-//                frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
-//                backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
-//                backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
-//                frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
-//
-//                if(onHeading(90) & runtime.milliseconds()>1000) {
-//                    auto++;
-//                    backLeft.setPower(0);
-//                    backRight.setPower(0);
-//                    frontLeft.setPower(0);
-//                    frontRight.setPower(0);
-//                }
-//                break;
-//            case(19):
-//                frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//                backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//                backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//                frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
-//
-//                auto++;
-//                runtime.reset();
-//                break;
-//            case(20):
-//                strafe(575,0.2, 1);
-//                target = 0;
-//                if(place ==1 ){
-//                    target = -150;
-//
-//                }
-//                else if(place == 2){
-//                    target = -700;
-//                }
-//                else{
-//                    target = -1200;
-//
-//                }
-//                lift(target,0.3);
-//                if(Math.abs(frontLeft.getCurrentPosition())> 575 ) {
-//                    auto++;
-//                    backLeft.setPower(0);
-//                    backRight.setPower(0);
-//                    frontLeft.setPower(0);
-//                    frontRight.setPower(0);
-//                }
-//                break;
-//            case(21):
-//
-//                gateIn.setPosition(0.33);
-//                gateOut.setPosition(0.5);
-//                slope.setPosition(0.7);
-//
-//                backLeft.setPower(0);
-//                backRight.setPower(0);
-//                frontLeft.setPower(0);
-//                frontRight.setPower(0);
-//
-//
-//
-//
-//
-//
-//        }
+
+                }
+                runtime.reset();
+                break;
+
+
+
+            case(15):
+                if(runtime.milliseconds() >1000){
+                    frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+                    auto++;
+                    runtime.reset();
+                }
+
+                break;
+
+            case(16):
+                drive(-100,0.2);
+
+
+                if(cmToTicks(-100)>(frontLeft.getCurrentPosition())){
+                    auto++;
+
+                    gateIn.setPosition(0.33);
+                    gateOut.setPosition(0.5);
+                    slope.setPosition(0.7);
+
+                    backLeft.setPower(0);
+                    backRight.setPower(0);
+                    frontLeft.setPower(0);
+                    frontRight.setPower(0);
+
+                }
+                runtime.reset();
+                break;
+            case(17):
+                frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+
+                auto++;
+                runtime.reset();
+                break;
+
+            case(18):
+                frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
+                backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
+                backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
+                frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
+
+                if(onHeading(90) & runtime.milliseconds()>1000) {
+                    auto++;
+                    backLeft.setPower(0);
+                    backRight.setPower(0);
+                    frontLeft.setPower(0);
+                    frontRight.setPower(0);
+                }
+                break;
+            case(19):
+                frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+
+                auto++;
+                runtime.reset();
+                break;
+            case(20):
+                strafe(575,0.2, 1);
+                target = 0;
+                if(place ==1 ){
+                    target = -150;
+
+                }
+                else if(place == 2){
+                    target = -700;
+                }
+                else{
+                    target = -1200;
+
+                }
+                lift(target,0.3);
+                if(Math.abs(frontLeft.getCurrentPosition())> 575 ) {
+                    auto++;
+                    backLeft.setPower(0);
+                    backRight.setPower(0);
+                    frontLeft.setPower(0);
+                    frontRight.setPower(0);
+                }
+                break;
+            case(21):
+
+                gateIn.setPosition(0.33);
+                gateOut.setPosition(0.5);
+                slope.setPosition(0.7);
+
+                backLeft.setPower(0);
+                backRight.setPower(0);
+                frontLeft.setPower(0);
+                frontRight.setPower(0);
+
+
+
+
+
+
+        }
 
 
 
@@ -692,7 +663,7 @@ public class BlueEncoderThings extends OpMode {
         telemetry.addData("Status", imu.getSystemStatus().toShortString());
         telemetry.addData("Calib Status", imu.getCalibrationStatus().toString());
         telemetry.addData("Gyro Calib?", imu.isGyroCalibrated());
-        telemetry.addData("heading", imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).thirdAngle);
+        telemetry.addData("heading", imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle);
         telemetry.addData("case", auto);
         telemetry.addData("time", runtime.milliseconds());
         telemetry.addData("cmToTicks(150)", cmToTicks(150));
@@ -724,7 +695,7 @@ public class BlueEncoderThings extends OpMode {
      * @return
      */
     boolean onHeading(double angle) {
-        double actual = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).thirdAngle;
+        double actual = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
         double   steer ;
         boolean  onTarget = false ;
         double leftSpeed;

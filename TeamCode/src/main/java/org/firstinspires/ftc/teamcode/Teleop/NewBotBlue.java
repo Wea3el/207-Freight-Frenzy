@@ -76,6 +76,8 @@ public class NewBotBlue extends OpMode
 
     private Servo cap;
 
+    int liftPos;
+
     private VisionWrapper visionWrapper;
 
     /*
@@ -125,6 +127,7 @@ public class NewBotBlue extends OpMode
         visionWrapper.init(hardwareMap);
 
         slope.setPosition(0.2);
+        liftPos = 0;
 
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
@@ -175,8 +178,14 @@ public class NewBotBlue extends OpMode
 //            leftLift.setPower(gamepad2.right_stick_y *0.5);
 //            rightLift.setPower(gamepad2.right_stick_y *0.5);
 
-            leftLift.setPower(gamepad2.right_stick_y);
-            rightLift.setPower(gamepad2.right_stick_y);
+//            double liftpow = gamepad2.right_stick_y;
+//            leftLift.setPower(liftpow);
+//            rightLift.setPower(liftpow); //ROB: DOING THIS MIGHT HELP W SLACK ISSUE
+
+            if(gamepad2.dpad_down && liftPos != 0)
+            {
+                //leftLift
+            }
 
             if(gamepad2.left_stick_y == 0f)
             {
@@ -187,6 +196,8 @@ public class NewBotBlue extends OpMode
             }
             else if(gamepad2.left_stick_y > 0.1f)
             {
+
+
                 // pp up position
 
                 gateIn.setPosition(1);

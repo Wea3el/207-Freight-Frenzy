@@ -70,12 +70,12 @@ public class RedEncoderThings extends OpMode {
     int place;
     boolean detected = false;
     private int pos;
-    private static final String TFOD_MODEL_ASSET = "FreightFrenzy_BCDM.tflite";
-    private static final String[] LABELS = {
-            "Cube",
-            "Marker",
-            "Ball"
-    };
+    // private static final String TFOD_MODEL_ASSET = "FreightFrenzy_BCDM.tflite";
+//    private static final String[] LABELS = {
+//            "Cube",
+//            "Marker",
+//            "Ball"
+//    };
 
     /*
      * IMPORTANT: You need to obtain your own license key to use Vuforia. The string below with which
@@ -153,14 +153,14 @@ public class RedEncoderThings extends OpMode {
         pos = 0;
 
         imu.initialize(parameters);
-        initVuforia();
-        initTfod();
+//        initVuforia();
+//        initTfod();
 
         /**
          * Activate TensorFlow Object Detection before we wait for the start command.
          * Do it here so that the Camera Stream window will have the TensorFlow annotations visible.
          **/
-        tfod.activate();
+        // tfod.activate();
 
         // The TensorFlow software will scale the input images from the camera to a lower resolution.
         // This can result in lower detection accuracy at longer distances (> 55cm or 22").
@@ -168,7 +168,7 @@ public class RedEncoderThings extends OpMode {
         // to artificially zoom in to the center of image.  For best results, the "aspectRatio" argument
         // should be set to the value of the images used to create the TensorFlow Object Detection model
         // (typically 16/9).
-        tfod.setZoom(1, 16.0/9.0);
+        // tfod.setZoom(1, 16.0/9.0);
     }
 
     private void drive(int targetPos, double speed)
@@ -312,6 +312,14 @@ public class RedEncoderThings extends OpMode {
     public void loop() {
 
 
+        switch(auto)
+        {
+            case 0:
+
+                
+
+                break;
+        }
 
 
         switch(auto){
@@ -771,18 +779,18 @@ public class RedEncoderThings extends OpMode {
         // Loading trackables is not necessary for the TensorFlow Object Detection engine.
     }
 
-    /**
-     * Initialize the TensorFlow Object Detection engine.
-     */
-    private void initTfod() {
-        int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
-                "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-        tfodParameters.minResultConfidence = 0.2f;
-        tfodParameters.isModelTensorFlow2 = true;
-        tfodParameters.inputSize = 320;
-        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
-        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABELS);
-    }
+//    /**
+//     * Initialize the TensorFlow Object Detection engine.
+//     */
+//    private void initTfod() {
+//        int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
+//                "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+//        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+//        tfodParameters.minResultConfidence = 0.2f;
+//        tfodParameters.isModelTensorFlow2 = true;
+//        tfodParameters.inputSize = 320;
+//        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+//        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABELS);
+//    }
 
 }
