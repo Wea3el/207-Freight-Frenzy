@@ -145,7 +145,7 @@ public class Blue extends OpMode
             backRight.setPower(gamepad1.right_stick_y * speed );
             backLeft.setPower(gamepad1.left_stick_y * speed);
             intake.setPower(gamepad2.left_stick_y);
-            lift.setPower(gamepad2.right_stick_y *0.5);
+            lift.setPower(gamepad2.right_stick_y *0.75);
 
         }
 
@@ -158,15 +158,16 @@ public class Blue extends OpMode
         }
 
         if(gamepad2.x){
-            power = 0.25;
-            runtime.reset();
+            power = 0.1;
+
         }
         else if(gamepad2.y){
-            power = -0.25;
-            runtime.reset();
+            power = -0.1;
+
         }
         else{
             power = 0;
+
         }
         duck.setPower(power);
 
