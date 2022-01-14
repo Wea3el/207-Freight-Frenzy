@@ -185,6 +185,7 @@ public class NewBotBlue extends OpMode
             if(gamepad2.dpad_down && liftPos != 0)
             {
                 //leftLift
+                // FIX THIS LATER
             }
 
             if(gamepad2.left_stick_y == 0f)
