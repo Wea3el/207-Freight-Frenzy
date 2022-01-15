@@ -45,7 +45,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="Red", group="Iterative Opmode")
-@Disabled
+//@Disabled
 public class Red extends OpMode
 {
     // Declare OpMode members.
@@ -64,7 +64,6 @@ public class Red extends OpMode
     private double curHeading;
     private boolean fieldCentric = false;
     private double liftSpeed = 0.5;
-    ModernRoboticsI2cRangeSensor rangeSensor;
 
     BNO055IMU imu;
     BNO055IMU.Parameters parameters;
@@ -84,12 +83,11 @@ public class Red extends OpMode
         duck = hardwareMap.get(DcMotor.class, "duck");
         lift = hardwareMap.get(DcMotor.class, "lift");
         spit = hardwareMap.get(Servo.class, "spit");
-        rangeSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "distance");
 
-        frontRight.setDirection(DcMotor.Direction.FORWARD);
-        backRight.setDirection(DcMotor.Direction.FORWARD);
-        frontLeft.setDirection(DcMotor.Direction.REVERSE);
-        backLeft.setDirection(DcMotor.Direction.REVERSE);
+        frontRight.setDirection(DcMotor.Direction.REVERSE);
+        backRight.setDirection(DcMotor.Direction.REVERSE);
+        frontLeft.setDirection(DcMotor.Direction.FORWARD);
+        backLeft.setDirection(DcMotor.Direction.FORWARD);
 
         frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
@@ -262,7 +260,6 @@ public class Red extends OpMode
         telemetry.addData("lift", lift.getCurrentPosition());
         telemetry.addData("spit", spit.getPosition());
         telemetry.addData("SPEED", duck.getPower());
-        telemetry.addData("cm", "%.2f cm", rangeSensor.getDistance(DistanceUnit.CM));
         telemetry.update();
 
         // Send calculated power to wheels

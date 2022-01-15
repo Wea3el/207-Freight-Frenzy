@@ -37,10 +37,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.teamcode.OpenCV.VisionWrapper;
-
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="Blue", group="Iterative Opmode")
-@Disabled
+//@Disabled
 public class Blue extends OpMode
 {
     // Declare OpMode members.
@@ -57,10 +55,7 @@ public class Blue extends OpMode
     private Servo spit;
     private double speed = 1;
     private boolean xHeld;
-    private boolean yHeld;
-
-    private VisionWrapper visionWrapper;
-
+    private boolean  yHeld;
     /*
      * Code to run ONCE when the driver hits INIT
      */
@@ -78,10 +73,11 @@ public class Blue extends OpMode
         lift = hardwareMap.get(DcMotor.class, "lift");
         spit = hardwareMap.get(Servo.class, "spit");
 
-        frontRight.setDirection(DcMotor.Direction.FORWARD);
-        backRight.setDirection(DcMotor.Direction.FORWARD);
-        frontLeft.setDirection(DcMotor.Direction.REVERSE);
-        backLeft.setDirection(DcMotor.Direction.REVERSE);
+        frontRight.setDirection(DcMotor.Direction.REVERSE);
+        backRight.setDirection(DcMotor.Direction.REVERSE);
+        frontLeft.setDirection(DcMotor.Direction.FORWARD);
+        backLeft.setDirection(DcMotor.Direction.FORWARD);
+        intake.setDirection(DcMotor.Direction.REVERSE);
 
         frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
@@ -96,8 +92,6 @@ public class Blue extends OpMode
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        visionWrapper = new VisionWrapper();
-        visionWrapper.init(hardwareMap);
 
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
@@ -201,9 +195,6 @@ public class Blue extends OpMode
         telemetry.addData("lift", lift.getCurrentPosition());
         telemetry.addData("spit", spit.getPosition());
         telemetry.addData("SPEED", power);
-
-        telemetry.addData("BIG CAMERA", visionWrapper.currentDetermination());
-
         telemetry.update();
 
         // Send calculated power to wheels
