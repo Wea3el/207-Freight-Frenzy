@@ -388,7 +388,7 @@ public class RedEncoderThings extends OpMode {
                 break;
             case(8):
 
-                strafe(1325, 0.5, -1);
+                strafe(1450, 0.5, -1);
 
 
                 if(Math.abs(frontLeft.getCurrentPosition())> 1300 ){
