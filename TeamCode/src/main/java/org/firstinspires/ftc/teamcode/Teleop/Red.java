@@ -45,7 +45,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="Red", group="Iterative Opmode")
-@Disabled
+//@Disabled
 public class Red extends OpMode
 {
     // Declare OpMode members.
@@ -63,9 +63,7 @@ public class Red extends OpMode
     private double speed = 1;
     private double curHeading;
     private boolean fieldCentric = false;
-    private double thing;
-    private double thing1;
-    ModernRoboticsI2cRangeSensor rangeSensor;
+    private double liftSpeed = 0.5;
 
     BNO055IMU imu;
     BNO055IMU.Parameters parameters;
@@ -85,12 +83,11 @@ public class Red extends OpMode
         duck = hardwareMap.get(DcMotor.class, "duck");
         lift = hardwareMap.get(DcMotor.class, "lift");
         spit = hardwareMap.get(Servo.class, "spit");
-        rangeSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "distance");
 
-        frontRight.setDirection(DcMotor.Direction.FORWARD);
-        backRight.setDirection(DcMotor.Direction.FORWARD);
-        frontLeft.setDirection(DcMotor.Direction.REVERSE);
-        backLeft.setDirection(DcMotor.Direction.REVERSE);
+        frontRight.setDirection(DcMotor.Direction.REVERSE);
+        backRight.setDirection(DcMotor.Direction.REVERSE);
+        frontLeft.setDirection(DcMotor.Direction.FORWARD);
+        backLeft.setDirection(DcMotor.Direction.FORWARD);
 
         frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
@@ -196,7 +193,7 @@ public class Red extends OpMode
                 backRight.setPower(gamepad1.right_stick_y * speed );
                 backLeft.setPower(gamepad1.left_stick_y * speed);
                 intake.setPower(gamepad2.left_stick_y);
-                lift.setPower(gamepad2.right_stick_y *0.75);
+                lift.setPower(gamepad2.right_stick_y *0.5);
 
             }
 
@@ -211,14 +208,14 @@ public class Red extends OpMode
 
 
             if(gamepad2.x){
-                power = 0.275;
+                power = 0.25;
                 runtime.reset();
             }
             else if(gamepad2.y){
-                power = -0.275;
+                power = -0.25;
                 runtime.reset();
             }
-            else if(runtime.milliseconds() >1250){
+            else{
                 power = 0;
             }
             duck.setPower(power);
@@ -263,7 +260,6 @@ public class Red extends OpMode
         telemetry.addData("lift", lift.getCurrentPosition());
         telemetry.addData("spit", spit.getPosition());
         telemetry.addData("SPEED", duck.getPower());
-        telemetry.addData("cm", "%.2f cm", rangeSensor.getDistance(DistanceUnit.CM));
         telemetry.update();
 
         // Send calculated power to wheels

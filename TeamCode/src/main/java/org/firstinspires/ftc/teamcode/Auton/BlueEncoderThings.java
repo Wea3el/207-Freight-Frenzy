@@ -104,10 +104,10 @@ public class BlueEncoderThings extends OpMode {
         lift = hardwareMap.get(DcMotor.class, "lift");
         spit = hardwareMap.get(Servo.class, "spit");
 
-        frontLeft.setDirection(DcMotor.Direction.REVERSE);
-        backLeft.setDirection(DcMotor.Direction.REVERSE);
-        frontRight.setDirection(DcMotor.Direction.FORWARD);
-        backRight.setDirection(DcMotor.Direction.FORWARD);
+        frontRight.setDirection(DcMotor.Direction.REVERSE);
+        backRight.setDirection(DcMotor.Direction.REVERSE);
+        frontLeft.setDirection(DcMotor.Direction.FORWARD);
+        backLeft.setDirection(DcMotor.Direction.FORWARD);
 
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -334,7 +334,7 @@ public class BlueEncoderThings extends OpMode {
                 break;
 
             case(3):
-                duck.setPower(-0.3);
+                duck.setPower(0.3);
                 if(runtime.milliseconds()>6000){
                     duck.setPower(0);
                     auto++;
@@ -445,7 +445,7 @@ public class BlueEncoderThings extends OpMode {
                     target = 700;
                 }
                 else{
-                    target = 230;
+                    target = 200;
 
                 }
                 lift(target,0.3);
@@ -472,13 +472,13 @@ public class BlueEncoderThings extends OpMode {
             case(14):
                 target = 0;
                 if(place ==1 ){
-                    target = cmToTicks(59);
-                }
-                else if(place == 2){
                     target = cmToTicks(60);
                 }
+                else if(place == 2){
+                    target = cmToTicks(60.5);
+                }
                 else{
-                    target = cmToTicks(62);
+                    target = cmToTicks(61.5);
 
                 }
 
