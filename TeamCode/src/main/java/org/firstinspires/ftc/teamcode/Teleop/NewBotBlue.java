@@ -78,8 +78,6 @@ public class NewBotBlue extends OpMode
 
     int liftPos;
 
-    private VisionWrapper visionWrapper;
-
     /*
      * Code to run ONCE when the driver hits INIT
      */
@@ -122,9 +120,6 @@ public class NewBotBlue extends OpMode
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        visionWrapper = new VisionWrapper();
-        visionWrapper.init(hardwareMap);
 
         slope.setPosition(0.2);
         liftPos = 0;
@@ -178,9 +173,9 @@ public class NewBotBlue extends OpMode
 //            leftLift.setPower(gamepad2.right_stick_y *0.5);
 //            rightLift.setPower(gamepad2.right_stick_y *0.5);
 
-//            double liftpow = gamepad2.right_stick_y;
-//            leftLift.setPower(liftpow);
-//            rightLift.setPower(liftpow); //ROB: DOING THIS MIGHT HELP W SLACK ISSUE
+            double liftpow = 0.5 * gamepad2.right_stick_y;
+            leftLift.setPower(liftpow);
+            rightLift.setPower(liftpow); //ROB: DOING THIS MIGHT HELP W SLACK ISSUE
 
             if(gamepad2.dpad_down && liftPos != 0)
             {
@@ -193,7 +188,7 @@ public class NewBotBlue extends OpMode
                 // default position aka pp down
 
                 gateIn.setPosition(0.33);
-                slope.setPosition(0.2);
+                slope.setPosition(0.3);
             }
             else if(gamepad2.left_stick_y > 0.1f)
             {
@@ -227,7 +222,7 @@ public class NewBotBlue extends OpMode
         else{
             power = 0;
         }
-        duck.setPower(power);
+        duck.setPower(0.8 * power);
 
 
 
@@ -253,15 +248,7 @@ public class NewBotBlue extends OpMode
 
 
 
-        telemetry.addData("frontLeft", frontLeft.getCurrentPosition());
-        telemetry.addData("frontRight", frontRight.getCurrentPosition());
-        telemetry.addData("backRight", backRight.getCurrentPosition());
-        telemetry.addData("backLeft", backLeft.getCurrentPosition());
-        telemetry.addData("lift", rightLift.getCurrentPosition());
-        telemetry.addData("duck", duck.getCurrentPosition());
         telemetry.addData("SPEED", power);
-
-        telemetry.addData("BIG CAMERA", visionWrapper.currentDetermination());
 
         telemetry.addData("gateIn", gateIn.getPosition());
         telemetry.addData("gateOut", gateOut.getPosition());
