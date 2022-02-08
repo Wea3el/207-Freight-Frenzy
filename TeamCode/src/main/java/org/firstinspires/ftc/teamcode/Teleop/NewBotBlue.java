@@ -33,21 +33,28 @@ package org.firstinspires.ftc.teamcode.Teleop;
 // WIFI PASSWORD IS PAGNOM207
 //----------------------------
 
+import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.OpenCV.VisionWrapper;
 
 @TeleOp(name="NewBotBlue", group="Iterative Opmode")
 //@Disabled
 public class NewBotBlue extends OpMode
 {
+
+    //sensors
+    private RevColorSensorV3 color;
+    private TouchSensor limit;
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotor frontRight;
@@ -57,7 +64,9 @@ public class NewBotBlue extends OpMode
     private DcMotor intake;
 
     // duck
-    private DcMotor duck;
+    private DcMotor duck1;
+    private DcMotor duck2;
+
 
     private double power;
     private double strafePower;
@@ -65,9 +74,9 @@ public class NewBotBlue extends OpMode
     private boolean xHeld;
     private boolean yHeld;
 
+
     // lift motors
-    private DcMotor leftLift;
-    private DcMotor rightLift;
+    private DcMotor lift;
 
     // intake and outtake servos
     private Servo gateIn;
@@ -91,38 +100,42 @@ public class NewBotBlue extends OpMode
         backLeft= hardwareMap.get(DcMotor.class, "BL");
         frontLeft = hardwareMap.get(DcMotor.class, "FL");
         intake = hardwareMap.get(DcMotor.class, "intake");
-        duck = hardwareMap.get(DcMotor.class, "duck");
-        leftLift = hardwareMap.get(DcMotor.class, "leftLift");
-        rightLift = hardwareMap.get(DcMotor.class, "rightLift");
+        duck1 = hardwareMap.get(DcMotor.class, "duck1");
+        duck2 = hardwareMap.get(DcMotor.class, "duck2");
+        lift = hardwareMap.get(DcMotor.class, "lift");
 
         gateIn = hardwareMap.get(Servo.class, "gateIn");
         slope = hardwareMap.get(Servo.class, "slope");
         gateOut = hardwareMap.get(Servo.class, "gateOut");
 
-        leftLift.setDirection(DcMotorSimple.Direction.REVERSE);
+        lift.setDirection(DcMotorSimple.Direction.REVERSE);
 
         frontRight.setDirection(DcMotor.Direction.FORWARD);
         backRight.setDirection(DcMotor.Direction.FORWARD);
         frontLeft.setDirection(DcMotor.Direction.REVERSE);
         backLeft.setDirection(DcMotor.Direction.REVERSE);
+        lift.setDirection(DcMotorSimple.Direction.REVERSE);
 
         frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
         frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
-        duck.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
-        leftLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
-        rightLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
+        duck1.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
+        duck2.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
+        lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
 
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        leftLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         slope.setPosition(0.2);
         liftPos = 0;
+
+
+        color = hardwareMap.get(RevColorSensorV3.class, "color");
+        limit = hardwareMap.get(TouchSensor.class, "Limit");
 
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
@@ -173,9 +186,12 @@ public class NewBotBlue extends OpMode
 //            leftLift.setPower(gamepad2.right_stick_y *0.5);
 //            rightLift.setPower(gamepad2.right_stick_y *0.5);
 
-            double liftpow = 0.5 * gamepad2.right_stick_y;
-            leftLift.setPower(liftpow);
-            rightLift.setPower(liftpow); //ROB: DOING THIS MIGHT HELP W SLACK ISSUE
+            double liftpow = 0.68 *  gamepad2.right_stick_y;
+            if(limit.isPressed() && liftpow<0){
+                liftpow = 0;
+            }
+            lift.setPower(liftpow);
+
 
             if(gamepad2.dpad_down && liftPos != 0)
             {
@@ -188,7 +204,7 @@ public class NewBotBlue extends OpMode
                 // default position aka pp down
 
                 gateIn.setPosition(0.33);
-                slope.setPosition(0.3);
+                slope.setPosition(1);
             }
             else if(gamepad2.left_stick_y > 0.1f)
             {
@@ -197,17 +213,17 @@ public class NewBotBlue extends OpMode
                 // pp up position
 
                 gateIn.setPosition(1);
-                slope.setPosition(0.7);
+                slope.setPosition(0.6);
             }
 
             if(gamepad2.b)
             {
-                gateOut.setPosition(1);
+                gateOut.setPosition(0.30);
 
             }
             else
             {
-                gateOut.setPosition(0.5);
+                gateOut.setPosition(0.7);
             }
         }
 
@@ -222,7 +238,7 @@ public class NewBotBlue extends OpMode
         else{
             power = 0;
         }
-        duck.setPower(0.8 * power);
+        duck1.setPower(0.8 * power);
 
 
 
@@ -253,6 +269,13 @@ public class NewBotBlue extends OpMode
         telemetry.addData("gateIn", gateIn.getPosition());
         telemetry.addData("gateOut", gateOut.getPosition());
         telemetry.addData("slope", slope.getPosition());
+        telemetry.addData("blue", color.blue());
+        telemetry.addData("red", color.red());// red for cubes
+        telemetry.addData("green", color.green());
+        telemetry.addData("argb", color.argb());
+        telemetry.addData("alpha", color.alpha());//
+        telemetry.addData("distance", color.getDistance(DistanceUnit.CM));
+
 
         telemetry.update();
 
