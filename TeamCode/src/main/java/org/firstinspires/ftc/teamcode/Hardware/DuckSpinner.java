@@ -8,15 +8,19 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class DuckSpinner extends Subsystem
 {
-    States duckStates;
-    public DuckSpinner(Telemetry telemetry) {
+    private DcMotor duck;
+    private States duckStates;
+
+    public DuckSpinner(HardwareMap map, Telemetry telemetry) {
         super(telemetry);
         duckStates = States.STOP;
+
+        duck = map.get(DcMotor.class, "duck");
     }
 
     @Override
-    public void updateState(HardwareMap map, Gamepad gp1, Gamepad gp2) {
-        DcMotor duck = map.get(DcMotor.class, "duck");
+    public void updateState(Gamepad gp1, Gamepad gp2) {
+
 
         switch (duckStates)
         {

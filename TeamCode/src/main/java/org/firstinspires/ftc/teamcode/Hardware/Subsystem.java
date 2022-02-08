@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Hardware;
 
 import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
@@ -12,7 +13,7 @@ public abstract class Subsystem {
     }
 
 
-    public abstract void updateState();
+    public abstract void updateState(Gamepad gp1, Gamepad gp2);
     public abstract void updateTeleopState(Gamepad gp1, Gamepad gp2);
 
     public void initLoopTeleop() {
