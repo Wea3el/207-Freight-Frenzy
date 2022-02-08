@@ -1,27 +1,36 @@
 package org.firstinspires.ftc.teamcode.Hardware;
 
+import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class Lift extends Subsystem
 {
-    private DcMotor intake, leftLift, rightLift;
+    private DcMotor intake, lift;
     private Servo gateIn, gateOut, slope;
-    private States states;
+    private States state;
     private Level level;
+    private ElapsedTime runtime = new ElapsedTime();
+    private double intakeSpeed = 0;
+    private double liftPower = 0;
+
+    private RevColorSensorV3 color;
+    private TouchSensor limit;
+
 
     public Lift(HardwareMap map, Telemetry telemetry) {
         super(telemetry);
-        states = States.INTAKE;
+        state = States.INTAKE;
         level = Level.INTAKE;
 
-        leftLift = map.get(DcMotor.class, "leftLift");
-        rightLift = map.get(DcMotor.class, "rightLift");
+        lift = map.get(DcMotor.class, "leftLift");
         intake = map.get(DcMotor.class, "intake");
 
         gateIn = map.get(Servo.class, "gateIn");
@@ -30,68 +39,118 @@ public class Lift extends Subsystem
 
         slope.setPosition(0.2);
 
-        leftLift.setDirection(DcMotorSimple.Direction.REVERSE);
-        rightLift.setDirection(DcMotorSimple.Direction.REVERSE);
+        lift.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        leftLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
-        rightLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
+        lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
 
-        leftLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        color = map.get(RevColorSensorV3.class, "color");
+        limit = map.get(TouchSensor.class, "Limit");
 
         telemetry.addData("Lift Status", "Initialized");
     }
 
     @Override
-    public void updateState(Gamepad gp1, Gamepad gp2) {
-        switch(states) {
+    public void updateState() {
+        switch(state) {
+
             case INTAKE:
-                double intakePower = gp2.left_stick_y;
-                intake.setPower(intakePower); //gp2.left_stick_y sets intake power
+                if(color.alpha() >10000 ){
+                    state = States.IN;
+                    runtime.reset();
+                }
+                else{
+                    intake.setPower(intakeSpeed);
+                    gateOut.setPosition(0.7);
+                    gateIn.setPosition(1);
+                    slope.setPosition(0.6);
+                }
+
+
                 break;
+            case IN:
+                gateIn.setPosition(0.33);
+                slope.setPosition(1);
 
-            case MOVE:
-                double liftPower = 0.5 * gp2.right_stick_y;
-//                leftLift.setPower(liftPower);
-//                rightLift.setPower(liftPower);
-
-                if(setLiftPos(level.numTicks, liftPower))
-                {
-                    states = States.ATLEVEL;
+                if(runtime.milliseconds() >1000){
+                    intake.setPower(0);
+                }
+                else{
+                    intake.setPower(-0.5);
                 }
                 break;
 
+            case MOVE:
+//
+                lift.setPower(liftPower);
+                if(setLiftPos(level.numTicks))
+                {
+                    if(level == Level.INTAKE){
+                        state = States.INTAKE;
+                    }
+                    else{
+                        state = States.ATLEVEL;
+                    }
+
+
+                }
+
+
+                break;
             case ATLEVEL:
-                leftLift.setPower(0.0);
-                rightLift.setPower(0.0);
-                intake.setPower(0.0);
+                runtime.reset();
                 break;
-
             case DUMP:
-
-                break;
-
-            case MANUAL:
-
+                gateOut.setPosition(0.3);
+                if(runtime.milliseconds()>1500){
+                    level = Level.INTAKE;
+                    state = States.MOVE;
+                }
                 break;
         }
+
     }
 
     @Override
-    public void updateTeleopState(Gamepad gp1, Gamepad gp2)
+    public void updateTeleopState(GamePadEx gp1, GamePadEx gp2)
     {
-//        if(gp2.x) // this might actually be gp2.y
-//        {
-//            duckStates = DuckSpinner.States.SPINBLUE;
-//        }
-//        else if(gp2.y) // this might actually be gp2.x
-//        {
-//            duckStates = DuckSpinner.States.SPINRED;
-//        }
-//        else
-//        {
-//            duckStates = DuckSpinner.States.STOP;
-//        }
+        switch(state) {
+            case INTAKE:
+                this.intakeSpeed = gp2.gamepad.left_stick_y;
+                runtime.reset();
+                if(gp1.controlPressed())
+                break;
+
+            case IN:
+                if(gp2.controlPressed(GamePadEx.ControllerButtons.B)){
+                    state = States.MOVE;
+                }
+                break;
+            case MOVE:
+                break;
+
+            case ATLEVEL:
+                if(gp2.controlPressed(GamePadEx.ControllerButtons.B)){
+                    state = States.DUMP;
+                }
+
+                break;
+
+            case DUMP:
+                break;
+
+        }
+        if(gp2.controlPressed(GamePadEx.ControllerButtons.X)) {
+            level = Level.TOP;
+        }
+        else if(gp2.controlPressed(GamePadEx.ControllerButtons.A)) {
+            level = Level.BOTTOM;
+        }
+        else if(gp2.controlPressed(GamePadEx.ControllerButtons.SELECT)){
+            state = States.MOVE;
+            level = Level.INTAKE;
+        }
     }
 
     @Override
@@ -99,26 +158,26 @@ public class Lift extends Subsystem
 
     }
 
-    public boolean setLiftPos(int numTicks, double liftPower)
+    public boolean setLiftPos(int numTicks)
     {
-        leftLift.setTargetPosition(numTicks);
-        rightLift.setTargetPosition(numTicks);
+        lift.setTargetPosition(numTicks);
 
-        leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        leftLift.setPower(liftPower);
-        rightLift.setPower(liftPower);
 
-        if(Math.abs(leftLift.getCurrentPosition() - numTicks) <= 5)
-        {
-            leftLift.setPower(0.0);
-            rightLift.setPower(0.0);
+        if (level == Level.INTAKE || level == Level.BOTTOM) {
+            if(limit.isPressed()){
+                return true;
+            }
 
-            leftLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            rightLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        } else {
+            if (Math.abs(lift.getCurrentPosition() - numTicks) <= 5) {
+                lift.setPower(0.0);
 
-            return true;
+                lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+                return true;
+            }
         }
 
         return false;
@@ -130,33 +189,22 @@ public class Lift extends Subsystem
         MOVE,
         ATLEVEL,
         DUMP,
-        MANUAL
+        IN,
     }
 
     enum Level
     {
-        TOP(0, "Top"),
-        MIDDLE(0, "Middle"),
-        BOTTOM(0, "Bottom"),
-        INTAKE(0, "Intake");
+        TOP(0),
+        MIDDLE(0),
+        BOTTOM(0),
+        INTAKE(0);
 
-        private int numTicks;
-        private String level;
+        public final int numTicks;
 
-        private Level(int ticks, String level)
+        private Level(int ticks)
         {
-            numTicks = ticks;
-            this.level = level;
+            this.numTicks = ticks;
         }
 
-        public int getTargetTicks()
-        {
-            return this.numTicks;
-        }
-
-        public String getLevel()
-        {
-            return this.level;
-        }
     }
 }

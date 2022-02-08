@@ -13,8 +13,8 @@ public abstract class Subsystem {
     }
 
 
-    public abstract void updateState(Gamepad gp1, Gamepad gp2);
-    public abstract void updateTeleopState(Gamepad gp1, Gamepad gp2);
+    public abstract void updateState();
+    public abstract void updateTeleopState(GamePadEx gp1, GamePadEx gp2);
 
     public void initLoopTeleop() {
 

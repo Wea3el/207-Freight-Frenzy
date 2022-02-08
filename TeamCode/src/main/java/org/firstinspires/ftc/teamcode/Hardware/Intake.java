@@ -1,38 +1,36 @@
 package org.firstinspires.ftc.teamcode.Hardware;
 
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Gamepad;
-import com.qualcomm.robotcore.hardware.HardwareMap;
+        import com.qualcomm.robotcore.hardware.DcMotor;
+        import com.qualcomm.robotcore.hardware.DcMotorSimple;
+        import com.qualcomm.robotcore.hardware.Gamepad;
+        import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
+        import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class Intake extends Subsystem
 {
-    private States states;
-
+    States states;
     public Intake(Telemetry telemetry) {
         super(telemetry);
         // states = States.BOTTOM;
-
-//        DcMotor leftLift = map.get(DcMotor.class, "leftLift");
-//        DcMotor rightLift = map.get(DcMotor.class, "rightLift");
-//        DcMotor intake = map.get(DcMotor.class, "intake");
     }
 
     @Override
-    public void updateState(Gamepad gp1, Gamepad gp2) {
+    public void updateState(HardwareMap map, Gamepad gp1, Gamepad gp2) {
+        DcMotor leftLift = map.get(DcMotor.class, "leftLift");
+        DcMotor rightLift = map.get(DcMotor.class, "rightLift");
+        DcMotor intake = map.get(DcMotor.class, "intake");
 
 
-
-
+        leftLift.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightLift.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // DcMotor leftLift = map.get(DcMotor.class, "duck");
 
         switch (states)
         {
             case ATBOTTOM:
-                // intake.setPower(gp2.left_stick_y);
+                intake.setPower(gp2.left_stick_y);
                 break;
             case MOVETOBOTTOM:
 

@@ -8,19 +8,17 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class DuckSpinner extends Subsystem
 {
-    private DcMotor duck;
-    private States duckStates;
-
-    public DuckSpinner(HardwareMap map, Telemetry telemetry) {
+    States duckStates;
+    private final double duckSpeed;
+    public DuckSpinner(Telemetry telemetry, boolean isRed) {
         super(telemetry);
+        duckSpeed = 0.7 * (isRed ? 1 : -1);
         duckStates = States.STOP;
-
-        duck = map.get(DcMotor.class, "duck");
     }
 
     @Override
-    public void updateState(Gamepad gp1, Gamepad gp2) {
-
+    public void updateState(HardwareMap map, Gamepad gp1, Gamepad gp2) {
+        DcMotor duck = map.get(DcMotor.class, "duck");
 
         switch (duckStates)
         {
@@ -28,10 +26,10 @@ public class DuckSpinner extends Subsystem
                 duck.setPower(0);
                 break;
             case SPINRED:
-                duck.setPower(0.25);
+                duck.setPower(duckSpeed);
                 break;
             case SPINBLUE:
-                duck.setPower(-0.25);
+                duck.setPower(duckSpeed);
                 break;
         }
     }
