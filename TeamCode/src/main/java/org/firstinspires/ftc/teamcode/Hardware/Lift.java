@@ -130,6 +130,7 @@ public class Lift extends Subsystem
                 }
                 break;
             case MOVE:
+                
                 break;
 
             case ATLEVEL:
@@ -165,7 +166,6 @@ public class Lift extends Subsystem
         lift.setTargetPosition(numTicks);
 
         lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
 
         if (level == Level.INTAKE || level == Level.BOTTOM) {
             if(limit.isPressed()){
