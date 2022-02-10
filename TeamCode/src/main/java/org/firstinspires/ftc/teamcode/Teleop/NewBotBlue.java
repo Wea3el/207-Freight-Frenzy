@@ -186,7 +186,7 @@ public class NewBotBlue extends OpMode
 //            leftLift.setPower(gamepad2.right_stick_y *0.5);
 //            rightLift.setPower(gamepad2.right_stick_y *0.5);
 
-            double liftpow = 0.68 *  gamepad2.right_stick_y;
+            double liftpow =   gamepad2.right_stick_y;
             if(limit.isPressed() && liftpow<0){
                 liftpow = 0;
             }
@@ -211,8 +211,7 @@ public class NewBotBlue extends OpMode
 
 
                 // pp up position
-
-                gateIn.setPosition(1);
+                gateIn.setPosition(-0.7);
                 slope.setPosition(0.6);
             }
 

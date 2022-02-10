@@ -10,38 +10,46 @@ public class DuckSpinner extends Subsystem
 {
     States duckStates;
     private final double duckSpeed;
-    public DuckSpinner(Telemetry telemetry, boolean isRed) {
+    private DcMotor duck1, duck2;
+
+    public DuckSpinner(Telemetry telemetry, boolean isRed, HardwareMap map) {
         super(telemetry);
+        duck1  = map.get(DcMotor.class, "duck1");
+        duck2  = map.get(DcMotor.class, "duck2");
+
+
         duckSpeed = 0.7 * (isRed ? 1 : -1);
         duckStates = States.STOP;
     }
 
     @Override
-    public void updateState(HardwareMap map, Gamepad gp1, Gamepad gp2) {
-        DcMotor duck = map.get(DcMotor.class, "duck");
+    public void updateState() {
 
         switch (duckStates)
         {
             case STOP:
-                duck.setPower(0);
+                duck1.setPower(0);
+                duck2.setPower(0);
                 break;
             case SPINRED:
-                duck.setPower(duckSpeed);
+                duck1.setPower(duckSpeed);
+                duck2.setPower(duckSpeed);
                 break;
             case SPINBLUE:
-                duck.setPower(duckSpeed);
+                duck1.setPower(duckSpeed);
+                duck2.setPower(duckSpeed);
                 break;
         }
     }
 
     @Override
-    public void updateTeleopState(Gamepad gp1, Gamepad gp2)
+    public void updateTeleopState(GamePadEx gp1, GamePadEx gp2)
     {
-        if(gp2.x) // this might actually be gp2.y
+        if(gp2.getControlDown(GamePadEx.ControllerButton.X)) // this might actually be gp2.y
         {
             duckStates = States.SPINBLUE;
         }
-        else if(gp2.y) // this might actually be gp2.x
+        else if(gp2.getControlDown(GamePadEx.ControllerButton.Y)) // this might actually be gp2.x
         {
             duckStates = States.SPINRED;
         }

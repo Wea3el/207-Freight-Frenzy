@@ -117,13 +117,15 @@ public class Lift extends Subsystem
     {
         switch(state) {
             case INTAKE:
-                this.intakeSpeed = gp2.gamepad.left_stick_y;
+                this.intakeSpeed = gp2.getAxis(GamePadEx.ControllerAxis.LEFT_Y);
                 runtime.reset();
-                if(gp1.controlPressed())
+                if(gp1.getControlDown(GamePadEx.ControllerButton.B)){
+                    state = States.IN;
+                }
                 break;
 
             case IN:
-                if(gp2.controlPressed(GamePadEx.ControllerButtons.B)){
+                if(gp2.getControlDown(GamePadEx.ControllerButton.B)){
                     state = States.MOVE;
                 }
                 break;
@@ -131,7 +133,7 @@ public class Lift extends Subsystem
                 break;
 
             case ATLEVEL:
-                if(gp2.controlPressed(GamePadEx.ControllerButtons.B)){
+                if(gp2.getControlDown(GamePadEx.ControllerButton.B)){
                     state = States.DUMP;
                 }
 
@@ -141,13 +143,13 @@ public class Lift extends Subsystem
                 break;
 
         }
-        if(gp2.controlPressed(GamePadEx.ControllerButtons.X)) {
+        if(gp2.getControlDown(GamePadEx.ControllerButton.X)) {
             level = Level.TOP;
         }
-        else if(gp2.controlPressed(GamePadEx.ControllerButtons.A)) {
+        else if(gp2.getControlDown(GamePadEx.ControllerButton.A)) {
             level = Level.BOTTOM;
         }
-        else if(gp2.controlPressed(GamePadEx.ControllerButtons.SELECT)){
+        else if(gp2.getControlDown(GamePadEx.ControllerButton.GUIDE)){
             state = States.MOVE;
             level = Level.INTAKE;
         }
