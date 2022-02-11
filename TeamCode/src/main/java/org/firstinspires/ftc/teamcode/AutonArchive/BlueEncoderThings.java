@@ -1,21 +1,12 @@
-package org.firstinspires.ftc.teamcode.Auton;
-
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.linearOpMode;
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
+package org.firstinspires.ftc.teamcode.AutonArchive;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
-import com.qualcomm.robotcore.util.ReadWriteFile;
 
-import org.firstinspires.ftc.robotcontroller.external.samples.HardwarePushbot;
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
@@ -23,45 +14,25 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
-import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
-import org.firstinspires.ftc.teamcode.OpenCV.VisionWrapper;
 
-import java.io.File;
 import java.util.List;
-//@Disabled
-@Autonomous(name = "RedEncoderThings", group = "Testing")
-public class RedEncoderThings extends OpMode {
-    private double power;
-    private double strafePower;
 
-    // Declare OpMode members.
+@Autonomous(name = "BlueEncoderThings", group = "Testing")
+public class BlueEncoderThings extends OpMode {
+
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotor frontRight;
     private DcMotor backRight;
+
     private DcMotor backLeft;
     private DcMotor frontLeft;
     private DcMotor intake;
-
-    // duck
-    private DcMotor duck;
-
-    private double speed = 1;
-    private boolean xHeld;
-    private boolean yHeld;
-
-    // lift motors
-    private DcMotor leftLift;
-    private DcMotor rightLift;
-
-    // intake and outtake servos
-    private Servo gateIn;
-    private Servo slope;
-    private Servo gateOut;
-
-    private Servo cap;
-
-    private VisionWrapper visionWrapper;
-
+    private DcMotor duck; // duck
+    private DcMotor lift;
+    private double power;
+    private double strafePower;
+    private Servo spit;
+    private double speed;
     final double     HEADING_THRESHOLD       = 5;      // As tight as we can make it with an integer gyro
     BNO055IMU imu;
     BNO055IMU.Parameters parameters;
@@ -70,12 +41,12 @@ public class RedEncoderThings extends OpMode {
     int place;
     boolean detected = false;
     private int pos;
-    // private static final String TFOD_MODEL_ASSET = "FreightFrenzy_BCDM.tflite";
-//    private static final String[] LABELS = {
-//            "Cube",
-//            "Marker",
-//            "Ball"
-//    };
+    private static final String TFOD_MODEL_ASSET = "FreightFrenzy_BCDM.tflite";
+    private static final String[] LABELS = {
+            "Cube",
+            "Marker",
+            "Ball"
+    };
 
     /*
      * IMPORTANT: You need to obtain your own license key to use Vuforia. The string below with which
@@ -120,55 +91,47 @@ public class RedEncoderThings extends OpMode {
         frontLeft = hardwareMap.get(DcMotor.class, "FL");
         intake = hardwareMap.get(DcMotor.class, "intake");
         duck = hardwareMap.get(DcMotor.class, "duck");
-        leftLift = hardwareMap.get(DcMotor.class, "leftLift");
-        rightLift = hardwareMap.get(DcMotor.class, "rightLift");
+        lift = hardwareMap.get(DcMotor.class, "lift");
+        spit = hardwareMap.get(Servo.class, "spit");
 
-        gateIn = hardwareMap.get(Servo.class, "gateIn");
-        slope = hardwareMap.get(Servo.class, "slope");
-        gateOut = hardwareMap.get(Servo.class, "gateOut");
-
-        frontLeft.setDirection(DcMotor.Direction.REVERSE);
-        backLeft.setDirection(DcMotor.Direction.REVERSE);
-        frontRight.setDirection(DcMotor.Direction.FORWARD);
-        backRight.setDirection(DcMotor.Direction.FORWARD);
+        frontRight.setDirection(DcMotor.Direction.REVERSE);
+        backRight.setDirection(DcMotor.Direction.REVERSE);
+        frontLeft.setDirection(DcMotor.Direction.FORWARD);
+        backLeft.setDirection(DcMotor.Direction.FORWARD);
 
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        leftLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
         frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
-        leftLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
-        rightLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
+        lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
 
-        gateIn.setPosition(0.33);
-        gateOut.setPosition(0.5);
-        slope.setPosition(0.7);
 
         pos = 0;
 
         imu.initialize(parameters);
-//        initVuforia();
-//        initTfod();
+        initVuforia();
+        initTfod();
+        spit.setPosition(0);
 
         /**
          * Activate TensorFlow Object Detection before we wait for the start command.
          * Do it here so that the Camera Stream window will have the TensorFlow annotations visible.
          **/
-        // tfod.activate();
+        tfod.activate();
 
-        // The TensorFlow software will scale the input images from the camera to a lower resolution.
-        // This can result in lower detection accuracy at longer distances (> 55cm or 22").
-        // If your target is at distance greater than 50 cm (20") you can adjust the magnification value
-        // to artificially zoom in to the center of image.  For best results, the "aspectRatio" argument
-        // should be set to the value of the images used to create the TensorFlow Object Detection model
-        // (typically 16/9).
-        // tfod.setZoom(1, 16.0/9.0);
+            // The TensorFlow software will scale the input images from the camera to a lower resolution.
+            // This can result in lower detection accuracy at longer distances (> 55cm or 22").
+            // If your target is at distance greater than 50 cm (20") you can adjust the magnification value
+            // to artificially zoom in to the center of image.  For best results, the "aspectRatio" argument
+            // should be set to the value of the images used to create the TensorFlow Object Detection model
+            // (typically 16/9).
+        tfod.setZoom(1.0, 16.0/9.0);
     }
 
     private void drive(int targetPos, double speed)
@@ -202,22 +165,19 @@ public class RedEncoderThings extends OpMode {
         int pos = targetPos;
 
 
-        leftLift.setTargetPosition(pos);
-        rightLift.setTargetPosition(pos);
+        lift.setTargetPosition(pos);
 
 
 
 
-        leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
 
-        leftLift.setPower(speed);
-        rightLift.setPower(speed);
+        lift.setPower(speed);
 
 
     }
-    private void strafe(int targetPos, double speed, int direction)//1 = right, -1 == left
+    private void strafe(int targetPos, double speed, int direction)//true == 1, false == left
     {
 
         int pos = cmToTicks(targetPos) * direction;
@@ -249,48 +209,48 @@ public class RedEncoderThings extends OpMode {
     public void init_loop() {
         telemetry.addData("Gyro Calib?", imu.isGyroCalibrated());
         telemetry.addData("heading", imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle);
-        if (tfod != null) {
-            // getUpdatedRecognitions() will return null if no new information is available since
-            // the last time that call was made.
-            List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
-            if (updatedRecognitions != null) {
-                telemetry.addData("# Object Detected", updatedRecognitions.size());
+            if (tfod != null) {
+                // getUpdatedRecognitions() will return null if no new information is available since
+                // the last time that call was made.
+                List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+                if (updatedRecognitions != null) {
+                    telemetry.addData("# Object Detected", updatedRecognitions.size());
 
-                // step through the list of recognitions and display boundary info.
-                int i = 0;
-                for (Recognition recognition : updatedRecognitions) {
-                    telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
-                    telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
-                            recognition.getLeft(), recognition.getTop());
+                    // step through the list of recognitions and display boundary info.
+                    int i = 0;
+                    for (Recognition recognition : updatedRecognitions) {
+                        telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
+                        telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
+                                recognition.getLeft(), recognition.getTop());
 
-                    telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
-                            recognition.getRight(), recognition.getBottom());
-                    i++;
-                    if(recognition.getLeft() > 10 & recognition.getRight() >150 &recognition.getLeft() <350){
-                        place = 1;
-                        telemetry.addLine("done");
-                        detected = true;
-                        break;
+                        telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
+                                recognition.getRight(), recognition.getBottom());
+                        i++;
+                        if(recognition.getLeft() > 850 & recognition.getRight() >1200){
+                            place = 1;
+                            telemetry.addLine("done");
+                            detected = true;
+                            break;
+                        }
+                        else if(recognition.getLeft() > 50 & recognition.getRight() >460 &recognition.getLeft() <600){
+                            place = 2;
+                            telemetry.addLine("done");
+                            detected = true;
+                            break;
+                        }
+                        else if(!detected){
+                            place = 3;
+                            telemetry.addLine("done");
+                            break;
+
+                        }
+
+
                     }
-                    else if(recognition.getLeft() > 475 & recognition.getRight() >800 ){
-                        place = 2;
-                        telemetry.addLine("done");
-                        detected = true;
-                        break;
-                    }
-                    else if(!detected){
-                        place = 3;
-                        telemetry.addLine("done");
-                        break;
 
-                    }
-
-
+                    telemetry.update();
                 }
-
-                telemetry.update();
             }
-        }
 
 
     }
@@ -312,21 +272,13 @@ public class RedEncoderThings extends OpMode {
     public void loop() {
 
 
-        switch(auto)
-        {
-            case 0:
-
-                
-
-                break;
-        }
 
 
         switch(auto){
             case 0:
 
 
-                drive(cmToTicks(6.5), 0.3);
+                drive(cmToTicks(6.8), 0.3);
 
 
                 if(frontLeft.getCurrentPosition() > cmToTicks(6.5) ){
@@ -357,7 +309,7 @@ public class RedEncoderThings extends OpMode {
                 break;
 
             case(2):
-                strafe(900, 0.1, -1);
+                strafe(900, 0.1, 1);
 
 
                 if(Math.abs(frontLeft.getCurrentPosition())> 950 ){
@@ -388,7 +340,7 @@ public class RedEncoderThings extends OpMode {
                 auto++;
                 runtime.reset();
             case(5):
-                drive(cmToTicks(3), 1);
+                drive(cmToTicks(4), 1);
 
 
                 if(Math.abs(frontLeft.getCurrentPosition())> cmToTicks(3) ){
@@ -410,7 +362,7 @@ public class RedEncoderThings extends OpMode {
                 backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
                 frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
 
-                if(onHeading(90) & runtime.milliseconds()>2500) {
+                if(onHeading(270) & runtime.milliseconds()>2000) {
                     auto++;
                     backLeft.setPower(0);
                     backRight.setPower(0);
@@ -428,10 +380,10 @@ public class RedEncoderThings extends OpMode {
                 break;
             case(8):
 
-                strafe(1325, 0.5, -1);
+                strafe(1500, 0.5, 1);
 
 
-                if(Math.abs(frontLeft.getCurrentPosition())> 1300 ){
+                if(Math.abs(frontLeft.getCurrentPosition())> 1400 ){
                     auto++;
                     backLeft.setPower(0);
                     backRight.setPower(0);
@@ -455,7 +407,7 @@ public class RedEncoderThings extends OpMode {
                 backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
                 frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
 
-                if(onHeading(90) & runtime.milliseconds()>1500) {
+                if(onHeading(270) & runtime.milliseconds()>1000) {
                     auto++;
                     backLeft.setPower(0);
                     backRight.setPower(0);
@@ -463,27 +415,27 @@ public class RedEncoderThings extends OpMode {
                     frontRight.setPower(0);
                 }
                 break;
+
             case(11):
                 frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
-                leftLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
-                rightLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+                lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
                 auto++;
                 runtime.reset();
                 break;
             case(12):
                 int target = 0;
                 if(place ==1 ){
-                    target = 150;
+                    target = 1200;
 
                 }
                 else if(place == 2){
                     target = 700;
                 }
                 else{
-                    target = 1200;
+                    target = 200;
 
                 }
                 lift(target,0.3);
@@ -503,21 +455,20 @@ public class RedEncoderThings extends OpMode {
                 backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
-                leftLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
-                rightLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+                lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
                 auto++;
                 runtime.reset();
                 break;
             case(14):
                 target = 0;
                 if(place ==1 ){
-                    target = cmToTicks(61);
-                }
-                else if(place == 2){
                     target = cmToTicks(60);
                 }
+                else if(place == 2){
+                    target = cmToTicks(60.5);
+                }
                 else{
-                    target = cmToTicks(59);
+                    target = cmToTicks(61.5);
 
                 }
 
@@ -530,14 +481,7 @@ public class RedEncoderThings extends OpMode {
                     backRight.setPower(0);
                     frontLeft.setPower(0);
                     frontRight.setPower(0);
-
-                    gateIn.setPosition(1);
-                    gateOut.setPosition(1);
-                    slope.setPosition(0);
-
-//                    gateIn.setPosition(0.33);
-//                    gateOut.setPosition(0.5);
-//                    slope.setPosition(0.7);
+                    spit.setPosition(0.7);
 
                 }
                 runtime.reset();
@@ -561,13 +505,9 @@ public class RedEncoderThings extends OpMode {
                 drive(-100,0.2);
 
 
-                if(cmToTicks(-100)>(frontLeft.getCurrentPosition())){
+                if(cmToTicks(-100)>frontLeft.getCurrentPosition()){
                     auto++;
-
-                    gateIn.setPosition(0.33);
-                    gateOut.setPosition(0.5);
-                    slope.setPosition(0.7);
-
+                    spit.setPosition(0);
                     backLeft.setPower(0);
                     backRight.setPower(0);
                     frontLeft.setPower(0);
@@ -589,7 +529,7 @@ public class RedEncoderThings extends OpMode {
                 backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
                 frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
 
-                if(onHeading(90) & runtime.milliseconds()>1000) {
+                if(onHeading(270) & runtime.milliseconds()>1000) {
                     auto++;
                     backLeft.setPower(0);
                     backRight.setPower(0);
@@ -607,38 +547,36 @@ public class RedEncoderThings extends OpMode {
                 runtime.reset();
                 break;
             case(20):
-                strafe(550,0.2, 1);
                 target = 0;
                 if(place ==1 ){
-                    target = -150;
+                    target = -1200;
 
                 }
                 else if(place == 2){
                     target = -700;
                 }
                 else{
-                    target = -1200;
+                    target = -230;
 
                 }
                 lift(target,0.3);
-                if(Math.abs(frontLeft.getCurrentPosition())> 550 ) {
-                    auto++;
-                    backLeft.setPower(0);
-                    backRight.setPower(0);
-                    frontLeft.setPower(0);
-                    frontRight.setPower(0);
-                }
-                break;
-            case(21):
-
-                gateIn.setPosition(0.33);
-                gateOut.setPosition(0.5);
-                slope.setPosition(0.7);
-
+                strafe(550,0.2, -1);
+                if(Math.abs(frontLeft.getCurrentPosition())> 550 ){
+                auto++;
                 backLeft.setPower(0);
                 backRight.setPower(0);
                 frontLeft.setPower(0);
                 frontRight.setPower(0);
+
+            }
+                break;
+            case(21):
+                lift.setPower(0);
+                backLeft.setPower(0);
+                backRight.setPower(0);
+                frontLeft.setPower(0);
+                frontRight.setPower(0);
+
 
 
 
@@ -655,11 +593,7 @@ public class RedEncoderThings extends OpMode {
         telemetry.addData("frontRight", frontRight.getCurrentPosition());
         telemetry.addData("backRight", backRight.getCurrentPosition());
         telemetry.addData("backLeft", backLeft.getCurrentPosition());
-
-        telemetry.addData("gateIn", gateIn.getPosition());
-        telemetry.addData("gateOut", gateOut.getPosition());
-        telemetry.addData("slope", slope.getPosition());
-
+        telemetry.addData("lift", lift.getCurrentPosition());
         telemetry.addData("Status", imu.getSystemStatus().toShortString());
         telemetry.addData("Calib Status", imu.getCalibrationStatus().toString());
         telemetry.addData("Gyro Calib?", imu.isGyroCalibrated());
@@ -775,22 +709,21 @@ public class RedEncoderThings extends OpMode {
 
         //  Instantiate the Vuforia engine
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
-
         // Loading trackables is not necessary for the TensorFlow Object Detection engine.
     }
 
-//    /**
-//     * Initialize the TensorFlow Object Detection engine.
-//     */
-//    private void initTfod() {
-//        int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
-//                "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-//        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-//        tfodParameters.minResultConfidence = 0.2f;
-//        tfodParameters.isModelTensorFlow2 = true;
-//        tfodParameters.inputSize = 320;
-//        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
-//        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABELS);
-//    }
-
+    /**
+     * Initialize the TensorFlow Object Detection engine.
+     */
+    private void initTfod() {
+        int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
+                "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+        tfodParameters.minResultConfidence = 0.2f;
+        tfodParameters.isModelTensorFlow2 = true;
+        tfodParameters.inputSize = 320;
+        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABELS);
+    }
 }
+

@@ -1,21 +1,12 @@
-package org.firstinspires.ftc.teamcode.Auton;
-
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.linearOpMode;
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
+package org.firstinspires.ftc.teamcode.AutonArchive;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
-import com.qualcomm.robotcore.util.ReadWriteFile;
 
-import org.firstinspires.ftc.robotcontroller.external.samples.HardwarePushbot;
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
@@ -23,14 +14,12 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
-import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.OpenCV.VisionWrapper;
 
-import java.io.File;
 import java.util.List;
-@Disabled
-@Autonomous(name = "OldRedEncoderThings", group = "Testing")
-public class OldRedEncoderThings extends OpMode {
+//@Disabled
+@Autonomous(name = "RedEncoderThings", group = "Testing")
+public class RedEncoderThings extends OpMode {
     private double power;
     private double strafePower;
 
@@ -316,7 +305,7 @@ public class OldRedEncoderThings extends OpMode {
         {
             case 0:
 
-
+                
 
                 break;
         }
@@ -357,10 +346,10 @@ public class OldRedEncoderThings extends OpMode {
                 break;
 
             case(2):
-                strafe(920, 0.1, -1);
+                strafe(900, 0.1, -1);
 
 
-                if(Math.abs(frontLeft.getCurrentPosition())> 920 ){
+                if(Math.abs(frontLeft.getCurrentPosition())> 950 ){
                     auto++;
                     backLeft.setPower(0);
                     backRight.setPower(0);
@@ -511,10 +500,10 @@ public class OldRedEncoderThings extends OpMode {
             case(14):
                 target = 0;
                 if(place ==1 ){
-                    target = cmToTicks(60);
+                    target = cmToTicks(61);
                 }
                 else if(place == 2){
-                    target = cmToTicks(60.3);
+                    target = cmToTicks(60);
                 }
                 else{
                     target = cmToTicks(59);
@@ -607,7 +596,7 @@ public class OldRedEncoderThings extends OpMode {
                 runtime.reset();
                 break;
             case(20):
-                strafe(575,0.2, 1);
+                strafe(550,0.2, 1);
                 target = 0;
                 if(place ==1 ){
                     target = -150;
@@ -621,7 +610,7 @@ public class OldRedEncoderThings extends OpMode {
 
                 }
                 lift(target,0.3);
-                if(Math.abs(frontLeft.getCurrentPosition())> 575 ) {
+                if(Math.abs(frontLeft.getCurrentPosition())> 550 ) {
                     auto++;
                     backLeft.setPower(0);
                     backRight.setPower(0);
