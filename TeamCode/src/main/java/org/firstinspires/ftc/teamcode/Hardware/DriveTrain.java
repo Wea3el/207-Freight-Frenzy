@@ -1,5 +1,9 @@
 package org.firstinspires.ftc.teamcode.Hardware;
 
+//----------------------------
+// WIFI PASSWORD IS PAGNOM207
+//----------------------------
+
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -133,6 +137,7 @@ public class DriveTrain extends Subsystem {
         } else if (DrivingGP.getControl(GamePadEx.ControllerButton.RTRIGGER)) { // Strafe right
                 direction = Direction.EAST;
         }
+
 
     }
 
