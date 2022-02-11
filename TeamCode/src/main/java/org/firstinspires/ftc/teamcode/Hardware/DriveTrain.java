@@ -19,6 +19,7 @@ public class DriveTrain extends Subsystem {
     //auton stuff
     private double target = 0;
     private double angle = 0;
+    private double strafePower = 0;
     //region Physical Components
     private DcMotor FL, FR, BL, BR;
     private BNO055IMU imu;
@@ -115,24 +116,36 @@ public class DriveTrain extends Subsystem {
     }
 
     @Override
-    public void updateTeleopState(GamePadEx DrivingGP, GamePadEx OtherGP) {
+    public void updateTeleopState(GamePadEx drivingGP, GamePadEx OtherGP) {
         if (FL.getMode() != DcMotor.RunMode.RUN_USING_ENCODER) {
             setMotorMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
-        double axisRightY = DrivingGP.getAxis(GamePadEx.ControllerAxis.RIGHT_Y);
-        double axisLeftY = DrivingGP.getAxis(GamePadEx.ControllerAxis.LEFT_Y);
+        double axisRightY = drivingGP.getAxis(GamePadEx.ControllerAxis.RIGHT_Y);
+        double axisLeftY = drivingGP.getAxis(GamePadEx.ControllerAxis.LEFT_Y);
         telemetry.addData("Right Y", axisRightY);
         telemetry.addData("Left Y", axisLeftY);
-
-        BR.setPower(axisLeftY);
-        FR.setPower(axisLeftY);
-        BL.setPower(axisRightY);
-        FL.setPower(axisRightY);
-        if (DrivingGP.getControl(GamePadEx.ControllerButton.LTRIGGER)) { // Strafe left
-                direction = Direction.WEST;
-        } else if (DrivingGP.getControl(GamePadEx.ControllerButton.RTRIGGER)) { // Strafe right
-                direction = Direction.EAST;
+        if (drivingGP.getAxis(GamePadEx.ControllerAxis.LEFT_TRIGGER) > 0.1) { // Strafe left
+            strafePower = drivingGP.getAxis(GamePadEx.ControllerAxis.LEFT_TRIGGER);
+            FR.setPower(-strafePower);
+            FL.setPower(strafePower);
+            BR.setPower(strafePower);
+            BL.setPower(-strafePower);
+        } else if (drivingGP.getControl(GamePadEx.ControllerButton.RTRIGGER)) { // Strafe right
+            strafePower = drivingGP.getAxis(GamePadEx.ControllerAxis.RIGHT_TRIGGER);
+            FR.setPower(strafePower);
+            FL.setPower(-strafePower);
+            BR.setPower(-strafePower);
+            BL.setPower(strafePower);
         }
+        else{
+            BR.setPower(axisLeftY);
+            FR.setPower(axisLeftY);
+            BL.setPower(axisRightY);
+            FL.setPower(axisRightY);
+
+        }
+
+
 
     }
 

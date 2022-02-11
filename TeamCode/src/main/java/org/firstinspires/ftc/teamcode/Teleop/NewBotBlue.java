@@ -274,6 +274,7 @@ public class NewBotBlue extends OpMode
         telemetry.addData("argb", color.argb());
         telemetry.addData("alpha", color.alpha());//
         telemetry.addData("distance", color.getDistance(DistanceUnit.CM));
+        telemetry.addData("lift", lift.getCurrentPosition());
 
 
         telemetry.update();

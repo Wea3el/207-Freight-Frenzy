@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public class Lift extends Subsystem
 {
@@ -19,7 +20,7 @@ public class Lift extends Subsystem
     private Level level;
     private ElapsedTime runtime = new ElapsedTime();
     private double intakeSpeed = 0;
-    private double liftPower = 0;
+    private double liftPower = 1;
 
     private RevColorSensorV3 color;
     private TouchSensor limit;
@@ -28,9 +29,9 @@ public class Lift extends Subsystem
     public Lift(HardwareMap map, Telemetry telemetry) {
         super(telemetry);
         state = States.INTAKE;
-        level = Level.INTAKE;
+        level = Level.TOP;
 
-        lift = map.get(DcMotor.class, "leftLift");
+        lift = map.get(DcMotor.class, "lift");
         intake = map.get(DcMotor.class, "intake");
 
         gateIn = map.get(Servo.class, "gateIn");
@@ -42,6 +43,7 @@ public class Lift extends Subsystem
         lift.setDirection(DcMotorSimple.Direction.REVERSE);
 
         lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
+
 
         lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
@@ -56,19 +58,18 @@ public class Lift extends Subsystem
         switch(state) {
 
             case INTAKE:
-                if(color.alpha() >10000 ){
+                if(color.getDistance(DistanceUnit.CM) < 6){
                     state = States.IN;
                     runtime.reset();
                 }
                 else{
                     intake.setPower(intakeSpeed);
                     gateOut.setPosition(0.7);
-                    gateIn.setPosition(1);
+                    gateIn.setPosition(-0.7);
                     slope.setPosition(0.6);
                 }
-
-
                 break;
+
             case IN:
                 gateIn.setPosition(0.33);
                 slope.setPosition(1);
@@ -82,9 +83,8 @@ public class Lift extends Subsystem
                 break;
 
             case MOVE:
-//
                 lift.setPower(liftPower);
-                if(setLiftPos(level.numTicks))
+                if(setLiftPos(level.numTicks) )
                 {
                     if(level == Level.INTAKE){
                         state = States.INTAKE;
@@ -95,15 +95,17 @@ public class Lift extends Subsystem
 
 
                 }
-
-
                 break;
+
             case ATLEVEL:
                 runtime.reset();
                 break;
+
             case DUMP:
                 gateOut.setPosition(0.3);
                 if(runtime.milliseconds()>1500){
+                    slope.setPosition(0.7);
+                    gateOut.setPosition(0.7);
                     level = Level.INTAKE;
                     state = States.MOVE;
                 }
@@ -117,6 +119,8 @@ public class Lift extends Subsystem
     {
         switch(state) {
             case INTAKE:
+                liftPower = 0;
+                level = Level.TOP;
                 this.intakeSpeed = gp2.getAxis(GamePadEx.ControllerAxis.LEFT_Y);
                 runtime.reset();
                 if(gp1.getControlDown(GamePadEx.ControllerButton.B)){
@@ -125,15 +129,18 @@ public class Lift extends Subsystem
                 break;
 
             case IN:
+                liftPower = 1;
                 if(gp2.getControlDown(GamePadEx.ControllerButton.B)){
+                    lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                     state = States.MOVE;
                 }
                 break;
+
             case MOVE:
                 break;
 
             case ATLEVEL:
-                if(gp2.getControlDown(GamePadEx.ControllerButton.B)){
+                if(gp2.getControlDown(GamePadEx.ControllerButton.Y)){
                     state = States.DUMP;
                 }
 
@@ -184,8 +191,15 @@ public class Lift extends Subsystem
 
         return false;
     }
+    public States getState() {
+        return state;
+    }
 
-    enum States
+    public Level getLevel() {
+        return level;
+    }
+
+    public enum States
     {
         INTAKE,
         MOVE,
@@ -194,10 +208,9 @@ public class Lift extends Subsystem
         IN,
     }
 
-    enum Level
+    public enum Level
     {
-        TOP(0),
-        MIDDLE(0),
+        TOP(3100),
         BOTTOM(0),
         INTAKE(0);
 
