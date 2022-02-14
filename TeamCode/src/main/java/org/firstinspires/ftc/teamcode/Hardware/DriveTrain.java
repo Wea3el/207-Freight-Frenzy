@@ -17,7 +17,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public class DriveTrain extends Subsystem {
     //auton stuff
-    private double target = 0;
+    private int target = 0;
     private double angle = 0;
     private double strafePower = 0;
     //region Physical Components
@@ -73,6 +73,9 @@ public class DriveTrain extends Subsystem {
             FR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             FL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        }
+        else{
+            setMotorMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
 
         telemetry.addData("Drive Train", "initialized");
@@ -241,11 +244,16 @@ public class DriveTrain extends Subsystem {
     public void setTargetAndMove(int t, Direction d){
         target = t;
         direction = d;
+        FR.setTargetPosition(target);
+        BR.setTargetPosition(target);
+        FL.setTargetPosition(target);
+        BL.setTargetPosition(target);
         this.state = DriveTrainState.MOVE;
         setMotorMode(DcMotor.RunMode.RUN_TO_POSITION);
 
     }
-    boolean onHeading(double angle) {
+    public boolean onHeading(double angle) {
+        this.state = DriveTrainState.TURN;
         double actual = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
         double   steer ;
         boolean  onTarget = false ;
