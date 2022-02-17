@@ -17,12 +17,12 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public class DriveTrain extends Subsystem {
     //auton stuff
-    private int target = 0;
+    public int target = 0;
     private double angle = 0;
     private double strafePower = 0;
     //region Physical Components
-    private DcMotor FL, FR, BL, BR;
-    private BNO055IMU imu;
+    public DcMotor FL, FR, BL, BR;
+    public BNO055IMU imu;
     private BNO055IMU.Parameters parameters;
     private ElapsedTime runtime = new ElapsedTime();
     final double     HEADING_THRESHOLD       = 5;
@@ -30,8 +30,7 @@ public class DriveTrain extends Subsystem {
 
     //region Movement Stats
     private DriveTrainState state;
-    private Direction direction;
-    private double drivePower;
+    public Direction direction;
     //endregion
 
     //region Dependent Classes
@@ -47,7 +46,7 @@ public class DriveTrain extends Subsystem {
         telemetry = tele;
 
         // Initialise states
-        state = DriveTrainState.IDLE;
+        state = DriveTrainState.WAIT;
 
         // Initialize motor names
         FR  = hardwareMap.get(DcMotor.class, "FR");
@@ -86,33 +85,28 @@ public class DriveTrain extends Subsystem {
         switch(state){
 
             case MOVE:
-                drivePower = 0.5;
-                moveMotorsWithDir(direction);
+                moveMotorsWithDir(direction, 0.5);
                 if(Math.abs(BR.getCurrentPosition()) > target){
                     runtime.reset();
-                    state = DriveTrainState.STOPPING;
+                    state = DriveTrainState.IDLE;
                 }
 
 
                 break;
             case TURN:
-                if (FL.getMode().equals(DcMotor.RunMode.STOP_AND_RESET_ENCODER)) {
-                    FL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                }
-                if(onHeading(angle) & runtime.milliseconds()>1500){
-                    state = DriveTrainState.STOPPING;
-                }
-                break;
-            case STOPPING:
-                stop();
-                setMotorMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                if(runtime.milliseconds() > 500){
-                    state = DriveTrainState.IDLE;
-                }
 
+                if(onHeading(angle) & runtime.milliseconds()>1500){
+                    state = DriveTrainState.IDLE;
+                    this.setMotorMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                }
                 break;
             case IDLE:
-                runtime.reset();
+                stop();
+                setMotorMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                break;
+            case WAIT:
+                stop();
+                setMotorMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 break;
         }
 
@@ -159,24 +153,25 @@ public class DriveTrain extends Subsystem {
     public enum DriveTrainState {
         MOVE, // Auton, escapable
         TURN, // Auton, escapable
-        STOPPING, // Auton, escapable
+        WAIT, //Auton, does nothing
         IDLE, // Reset encoders Auton, escapable
+
     }
 
     public enum Direction {
-        NORTH, // | (/\)
+        FORWARD, // | (/\)
         NORTHEAST, // / (/\)
-        EAST, // - (>)
+        RIGHT, // - (>)
         SOUTHEAST, // \ (\/)
-        SOUTH, // | (\/)
+        BACKWARD, // | (\/)
         SOUTHWEST, // / (\/)
-        WEST, // - (<)
+        LEFT, // - (<)
         NORTHWEST, // \ (/\)
         NONE, // Fallback or no movement
     }
 
-    public void moveMotorsWithDir(Direction dir) {
-        if (dir == Direction.NORTH) {
+    public void moveMotorsWithDir(Direction dir, double drivePower) {
+        if (dir == Direction.FORWARD) {
             BR.setPower(drivePower);
             FR.setPower(drivePower);
             BL.setPower(drivePower);
@@ -186,7 +181,7 @@ public class DriveTrain extends Subsystem {
             FR.setPower(0.0);
             BL.setPower(0.0);
             FL.setPower(drivePower);
-        } else if (dir == Direction.EAST) {
+        } else if (dir == Direction.RIGHT) {
             BR.setPower(drivePower);
             FR.setPower(-drivePower);
             BL.setPower(-drivePower);
@@ -196,7 +191,7 @@ public class DriveTrain extends Subsystem {
             FR.setPower(-drivePower);
             BL.setPower(-drivePower);
             FL.setPower(0.0);
-        } else if (dir == Direction.SOUTH) {
+        } else if (dir == Direction.BACKWARD) {
             BR.setPower(-drivePower);
             FR.setPower(-drivePower);
             BL.setPower(-drivePower);
@@ -206,7 +201,7 @@ public class DriveTrain extends Subsystem {
             FR.setPower(0.0);
             BL.setPower(0.0);
             FL.setPower(-drivePower);
-        } else if (dir == Direction.WEST) {
+        } else if (dir == Direction.LEFT) {
             BR.setPower(-drivePower);
             FR.setPower(drivePower);
             BL.setPower(drivePower);
@@ -238,23 +233,75 @@ public class DriveTrain extends Subsystem {
     public void initImu() {
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         parameters = new BNO055IMU.Parameters();
-
         imu.initialize(parameters);
     }
     public void setTargetAndMove(int t, Direction d){
         target = t;
         direction = d;
-        FR.setTargetPosition(target);
-        BR.setTargetPosition(target);
-        FL.setTargetPosition(target);
-        BL.setTargetPosition(target);
-        this.state = DriveTrainState.MOVE;
+        if (d == Direction.FORWARD) {
+            BR.setTargetPosition(t);
+            FR.setTargetPosition(t);
+            BL.setTargetPosition(t);
+            FL.setTargetPosition(t);
+        } else if (d == Direction.NORTHEAST) {
+            BR.setTargetPosition(t);
+            FR.setTargetPosition(0);
+            BL.setTargetPosition(0);
+            FL.setTargetPosition(t);
+        } else if (d == Direction.RIGHT) {
+            BR.setTargetPosition(t);
+            FR.setTargetPosition(-t);
+            BL.setTargetPosition(-t);
+            FL.setTargetPosition(t);
+        } else if (d == Direction.SOUTHEAST) {
+            BR.setTargetPosition(0);
+            FR.setTargetPosition(-t);
+            BL.setTargetPosition(-t);
+            FL.setTargetPosition(0);
+        } else if (d == Direction.BACKWARD) {
+            BR.setTargetPosition(-t);
+            FR.setTargetPosition(-t);
+            BL.setTargetPosition(-t);
+            FL.setTargetPosition(-t);
+        } else if (d == Direction.SOUTHWEST) {
+            BR.setTargetPosition(-t);
+            FR.setTargetPosition(0);
+            BL.setTargetPosition(0);
+            FL.setTargetPosition(-t);
+        } else if (d == Direction.LEFT) {
+            BR.setTargetPosition(-t);
+            FR.setTargetPosition(t);
+            BL.setTargetPosition(t);
+            FL.setTargetPosition(-t);
+        } else if (d == Direction.NORTHWEST) {
+            BR.setTargetPosition(0);
+            FR.setTargetPosition(t);
+            BL.setTargetPosition(t);
+            FL.setTargetPosition(0);
+        }
+
+
         setMotorMode(DcMotor.RunMode.RUN_TO_POSITION);
+        this.state = DriveTrainState.MOVE;
 
     }
+    public void waitAuton(){
+        this.state = DriveTrainState.WAIT;
+
+    }
+
+
+    public double angle(){
+        return imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZXY, AngleUnit.DEGREES).firstAngle;
+    }
+
+    public void turn(double angle2){
+        angle = angle2;
+        state = DriveTrainState.TURN;
+    }
     public boolean onHeading(double angle) {
-        this.state = DriveTrainState.TURN;
-        double actual = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+        setMotorMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        double actual = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZXY, AngleUnit.DEGREES).firstAngle;
         double   steer ;
         boolean  onTarget = false ;
         double leftSpeed;
@@ -275,6 +322,7 @@ public class DriveTrain extends Subsystem {
             steer = gyroCorrect(angle, 1, actual , 0.05, 0.2);
             rightSpeed  = steer;
             leftSpeed   = -rightSpeed;
+
         }
 
         // Send desired speeds to motors.

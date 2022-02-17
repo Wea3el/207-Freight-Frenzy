@@ -8,7 +8,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class DuckSpinner extends Subsystem
 {
-    States duckStates;
+    public States duckStates;
     private final double duckSpeed;
     private DcMotor duck1, duck2;
 
@@ -18,7 +18,7 @@ public class DuckSpinner extends Subsystem
         duck2  = map.get(DcMotor.class, "duck2");
 
 
-        duckSpeed = 0.7 * (isRed ? 1 : -1);
+        duckSpeed = 0.7 * (isRed ? -1 : 1);
         duckStates = States.STOP;
     }
 
@@ -64,7 +64,7 @@ public class DuckSpinner extends Subsystem
 
     }
 
-    enum States
+    public enum States
     {
         STOP,
         SPINRED,

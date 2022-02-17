@@ -41,8 +41,8 @@ public class Lift extends Subsystem
         slope.setPosition(0.2);
 
         lift.setDirection(DcMotorSimple.Direction.REVERSE);
+        lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
 
 
         lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -72,7 +72,7 @@ public class Lift extends Subsystem
 
             case IN:
                 gateIn.setPosition(0.33);
-                slope.setPosition(1);
+                slope.setPosition(0.9);
 
                 if(runtime.milliseconds() >1000){
                     intake.setPower(0);
@@ -83,7 +83,6 @@ public class Lift extends Subsystem
                 break;
 
             case MOVE:
-                lift.setPower(liftPower);
                 if(setLiftPos(level.numTicks) )
                 {
                     if(level == Level.INTAKE){
@@ -95,6 +94,13 @@ public class Lift extends Subsystem
 
 
                 }
+                if(level == Level.BOTTOM || level == Level.INTAKE){
+                    lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                } else {
+                    lift.setMode(DcMotor.RunMode.RUN_TO_POSITION );
+                }
+                lift.setPower(liftPower);
+
                 break;
 
             case ATLEVEL:
@@ -111,6 +117,7 @@ public class Lift extends Subsystem
                 }
                 break;
         }
+
 
     }
 
@@ -162,6 +169,13 @@ public class Lift extends Subsystem
             level = Level.INTAKE;
         }
     }
+    public void dump(){
+        state = States.DUMP;
+    }
+
+    public int liftTicks(){
+        return lift.getCurrentPosition();
+    }
 
     @Override
     public void stop() {
@@ -171,26 +185,24 @@ public class Lift extends Subsystem
     public boolean setLiftPos(int numTicks)
     {
         lift.setTargetPosition(numTicks);
-
-        lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
         if (level == Level.INTAKE || level == Level.BOTTOM) {
             if(limit.isPressed()){
                 return true;
             }
-
         } else {
             if (Math.abs(lift.getCurrentPosition() - numTicks) <= 5) {
                 lift.setPower(0.0);
-
-                lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
                 return true;
             }
         }
 
         return false;
     }
+    public void setStateLevel(States state, Level level)
+        {
+            this.state = state;
+            this.level = level;
+        }
     public States getState() {
         return state;
     }
@@ -210,7 +222,7 @@ public class Lift extends Subsystem
 
     public enum Level
     {
-        TOP(3100),
+        TOP(3500),
         BOTTOM(0),
         INTAKE(0);
 

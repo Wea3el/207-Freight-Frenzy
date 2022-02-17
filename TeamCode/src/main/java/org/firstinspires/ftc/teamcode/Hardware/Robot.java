@@ -36,7 +36,6 @@ public class Robot
     }
 
     public void init() {
-
         lift = new Lift(hardwareMap, telemetry);
         duck = new DuckSpinner(telemetry, isRed, hardwareMap);
         drive = new DriveTrain(hardwareMap, telemetry, isAuton);
