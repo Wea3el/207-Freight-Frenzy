@@ -18,7 +18,7 @@ public class DuckSpinner extends Subsystem
         duck2  = map.get(DcMotor.class, "duck2");
 
 
-        duckSpeed = 0.7 * (isRed ? -1 : 1);
+        duckSpeed = 0.4 * (isRed ? -1 : 1);
         duckStates = States.STOP;
     }
 

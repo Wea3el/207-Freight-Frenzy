@@ -27,6 +27,7 @@ public class SubsystemBlueTele extends OpMode {
        robot.updateState();
         telemetry.addLine(robot.lift.getState().name());
         telemetry.addLine(robot.lift.getLevel().name());
+        telemetry.addData("capstone", robot.lift.capstone.getPosition());
         telemetry.update();
 
     }

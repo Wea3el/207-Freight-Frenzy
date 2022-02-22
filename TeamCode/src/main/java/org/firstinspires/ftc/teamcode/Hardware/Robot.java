@@ -50,7 +50,10 @@ public class Robot
     public void updateState() {
         lift.updateState();
         duck.updateState();
-        drive.updateState();
+        if(isAuton){
+            drive.updateState();
+        }
+
     }
 
     public enum detectionState {

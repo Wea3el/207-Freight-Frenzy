@@ -1,10 +1,10 @@
-package org.firstinspires.ftc.teamcode.OpenCV;
+package org.firstinspires.ftc.teamcode.Hardware;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.opencv.core.MatOfPoint;
-import org.opencv.core.Point;
-import org.opencv.core.Rect;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.imgproc.Moments;
 import org.openftc.easyopencv.OpenCvCamera;
@@ -15,13 +15,18 @@ import org.openftc.easyopencv.OpenCvWebcam;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class VisionWrapper {
     private OpenCvWebcam webcam;
     private GripPipeline grip;
+    private Telemetry tele;
 
-    private static final int CAMERA_WIDTH = 320;
+    private static final int CAMERA_WIDTH = 80;
 
-    public VisionWrapper(){ grip = new GripPipeline(); }
+    public VisionWrapper(Telemetry tele){
+        grip = new GripPipeline();
+        this.tele = tele;
+    }
 
     public void init(HardwareMap hmap){ initVision(hmap); }
 
@@ -37,7 +42,7 @@ public class VisionWrapper {
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
             public void onOpened() {
-                webcam.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT);
+                webcam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
             }
 
             @Override
@@ -46,42 +51,49 @@ public class VisionWrapper {
     }
 
     // updates which level the camera sees the duck at
-    private DetectionLevel updateDetermination(){
+    private Lift.Level updateDetermination(){
         // get the list of contours from the pipeline
         List<MatOfPoint> contours = new ArrayList<>(grip.findContoursOutput());
 
         // if there are no contours found, duck is out of camera frame meaning level 3
         if(contours.size() == 0){
-            return DetectionLevel.LEVEL_THREE;
+            return Lift.Level.BOTTOM;
         }else{
-            // find the average center of mass on the screen and if it is greater than 1/2 the
-            //    width, it is level 2 and level 1 if less than half the width
             double xSum = 0;
 
+            // for each contour found, find its center and add it to the total center of mass foudn
             for (MatOfPoint point : contours) {
                 Moments moments = Imgproc.moments(point);
 
                 xSum += moments.get_m10() / moments.get_m00();
             }
 
+            // divide the total center of mass by the amount of contours to find the average
+            //     center of mass on screen
             xSum /= contours.size();
+            tele.addData("xSum", xSum);
 
+            // if the average center of mass is positioned at greater than half the screen width,
+            //     the object needs to be dropped to the second level
             if (xSum > CAMERA_WIDTH/2) {
-                return DetectionLevel.LEVEL_TWO;
-            } else {
-                return DetectionLevel.LEVEL_ONE;
+
+                return Lift.Level.MID;
+            }//  If average center of mass is not greater than half the screen, then it is on
+            //      the left and should go to level one
+            else {
+                return Lift.Level.TOP;
             }
         }
     }
 
     // updates which level the camera sees the duck at
-    private DetectionLevel updateDeterminationReverse(){
+    private Lift.Level updateDeterminationReverse(){
         // get the list of contours from the pipeline
         List<MatOfPoint> contours = new ArrayList<>(grip.findContoursOutput());
 
         // if there are no contours found, duck is out of camera frame meaning level 3
         if(contours.size() == 0){
-            return DetectionLevel.LEVEL_ONE;
+            return Lift.Level.TOP;
         }else{
             // find the average center of mass on the screen and if it is greater than 1/2 the
             //    width, it is level 2 and level 1 if less than half the width
@@ -96,16 +108,16 @@ public class VisionWrapper {
             xSum /= contours.size();
 
             if (xSum > CAMERA_WIDTH/2) {
-                return DetectionLevel.LEVEL_THREE;
+                return Lift.Level.BOTTOM;
             } else {
-                return DetectionLevel.LEVEL_TWO;
+                return Lift.Level.MID;
             }
         }
     }
 
-    public DetectionLevel currentDetermination(){ return this.updateDetermination(); }
+    public Lift.Level currentDetermination(){ return this.updateDetermination(); }
 
-    public DetectionLevel currentDeterminationReverse(){ return this.updateDeterminationReverse(); }
+    public Lift.Level currentDeterminationReverse(){ return this.updateDeterminationReverse(); }
 
     // stops the camera
     public void stop(){ webcam.stopStreaming(); }

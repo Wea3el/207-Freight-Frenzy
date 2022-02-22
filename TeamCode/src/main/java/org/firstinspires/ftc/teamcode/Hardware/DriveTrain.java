@@ -20,6 +20,7 @@ public class DriveTrain extends Subsystem {
     public int target = 0;
     private double angle = 0;
     private double strafePower = 0;
+    private double driveSpeed;
     //region Physical Components
     public DcMotor FL, FR, BL, BR;
     public BNO055IMU imu;
@@ -85,21 +86,20 @@ public class DriveTrain extends Subsystem {
         switch(state){
 
             case MOVE:
-                moveMotorsWithDir(direction, 0.5);
-                if(Math.abs(BR.getCurrentPosition()) > target){
+                moveMotorsWithDir(Direction.FORWARD, driveSpeed);
+                if(Math.abs(Math.abs(BR.getCurrentPosition()) - Math.abs(target)) < 5){
                     runtime.reset();
                     state = DriveTrainState.IDLE;
                 }
-
-
                 break;
-            case TURN:
 
+            case TURN:
                 if(onHeading(angle) & runtime.milliseconds()>1500){
                     state = DriveTrainState.IDLE;
                     this.setMotorMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 }
                 break;
+
             case IDLE:
                 stop();
                 setMotorMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -117,8 +117,10 @@ public class DriveTrain extends Subsystem {
         if (FL.getMode() != DcMotor.RunMode.RUN_USING_ENCODER) {
             setMotorMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
-        double axisRightY = drivingGP.getAxis(GamePadEx.ControllerAxis.RIGHT_Y);
-        double axisLeftY = drivingGP.getAxis(GamePadEx.ControllerAxis.LEFT_Y);
+        double axisRightY = drivingGP.getAxis(GamePadEx.ControllerAxis.LEFT_Y);
+        double axisLeftY = drivingGP.getAxis(GamePadEx.ControllerAxis.RIGHT_Y);
+
+
         telemetry.addData("Right Y", axisRightY);
         telemetry.addData("Left Y", axisLeftY);
         if (drivingGP.getAxis(GamePadEx.ControllerAxis.LEFT_TRIGGER) > 0.1) { // Strafe left
@@ -156,6 +158,10 @@ public class DriveTrain extends Subsystem {
         WAIT, //Auton, does nothing
         IDLE, // Reset encoders Auton, escapable
 
+    }
+
+    public boolean readyForNext(){
+        return this.state  == DriveTrainState.IDLE && FR.getCurrentPosition() == 0 && BR.getCurrentPosition() == 0 && FL.getCurrentPosition()== 0 && BL.getCurrentPosition() == 0;
     }
 
     public enum Direction {
@@ -235,9 +241,10 @@ public class DriveTrain extends Subsystem {
         parameters = new BNO055IMU.Parameters();
         imu.initialize(parameters);
     }
-    public void setTargetAndMove(int t, Direction d){
+    public void setTargetAndMove(int t, Direction d, double speed){
         target = t;
         direction = d;
+        driveSpeed = speed;
         if (d == Direction.FORWARD) {
             BR.setTargetPosition(t);
             FR.setTargetPosition(t);
@@ -280,11 +287,10 @@ public class DriveTrain extends Subsystem {
             FL.setTargetPosition(0);
         }
 
-
         setMotorMode(DcMotor.RunMode.RUN_TO_POSITION);
         this.state = DriveTrainState.MOVE;
-
     }
+
     public void waitAuton(){
         this.state = DriveTrainState.WAIT;
 

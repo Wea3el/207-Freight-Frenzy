@@ -9,18 +9,25 @@ import org.firstinspires.ftc.teamcode.Hardware.DriveTrain;
 import org.firstinspires.ftc.teamcode.Hardware.DuckSpinner;
 import org.firstinspires.ftc.teamcode.Hardware.Lift;
 import org.firstinspires.ftc.teamcode.Hardware.Robot;
+import org.firstinspires.ftc.teamcode.Hardware.VisionWrapper;
+
 
 @Autonomous(name = "BlueDuckSub", group = "Testing")
 public class BlueDuck extends OpMode {
     Robot robot;
-    Robot.detectionState cameraDetect;
+    Lift.Level detectedLevel = Lift.Level.MID;
     public ElapsedTime runtime = new ElapsedTime();
     public AutonState state;
+    public int target;
+    private VisionWrapper vision;
+    private int one, two, three;
+
+
 
     enum AutonState {
         PULLOUT, TURNDUCK, DRIVEDUCK, SPINDUCK, // ONE THING
         STRAFETOWER, DRIVEDEPOSIT, DEPOSIT, // ONETHING
-        BACKWALL,
+        BACKWALL, STRAFEPARK, END
 
     }
 
@@ -29,16 +36,50 @@ public class BlueDuck extends OpMode {
         robot = new Robot(gamepad1, gamepad2, hardwareMap, telemetry, true, false);
         robot.init();
         state = AutonState.PULLOUT;
+        vision = new VisionWrapper(telemetry);
+        vision.init(hardwareMap);
+        detectedLevel = Lift.Level.TOP; // immediately overwritten but safer without null
+        this.one = 0;
+        this.two = 0;
+        this.three = 0;
     }
 
     @Override
     public void init_loop() {
-        cameraDetect = Robot.detectionState.TOP;
+        // Get current detection every loop
+        this.detectedLevel = this.vision.currentDetermination();
+
+        if (this.detectedLevel != null) {
+            // Add to value if detected
+            switch (this.detectedLevel) {
+                case TOP:
+                    this.one++;
+                    break;
+                case MID:
+                    this.two++;
+                    break;
+                case BOTTOM:
+                    this.three++;
+                    break;
+            }
+
+            telemetry.addData("Current detected level: ", this.detectedLevel);
+
+            telemetry.addLine("-------------------------------------");
+            telemetry.addLine("Overall detection numbers: (PRESS A TO RESET)");
+            telemetry.addData("LEVEL 1: ", this.one);
+            telemetry.addData("LEVEL 2: ", this.two);
+            telemetry.addData("LEVEL 3: ", this.three);
+
+            telemetry.update();
+        }
+
     }
 
     @Override
     public void start() {
-        robot.drive.setTargetAndMove(100, DriveTrain.Direction.BACKWARD);
+        robot.drive.setTargetAndMove(170, DriveTrain.Direction.BACKWARD, 0.5);
+
 
     }
 
@@ -57,10 +98,10 @@ public class BlueDuck extends OpMode {
 
                 break;
             case TURNDUCK:
-                if(robot.drive.getState() == DriveTrain.DriveTrainState.IDLE && runtime.milliseconds() >3000){
+                if(robot.drive.readyForNext() &&  runtime.milliseconds() >3000){
                     runtime.reset();
                     state = AutonState.DRIVEDUCK;
-                    robot.drive.setTargetAndMove(700, DriveTrain.Direction.BACKWARD);
+                    robot.drive.setTargetAndMove(690, DriveTrain.Direction.BACKWARD,0.1);
                 }else{
                     robot.drive.turn(90);
                 }
@@ -71,8 +112,6 @@ public class BlueDuck extends OpMode {
                     runtime.reset();
                     state = AutonState.SPINDUCK;
                     robot.drive.waitAuton();
-                }else {
-
                 }
 
 
@@ -82,19 +121,28 @@ public class BlueDuck extends OpMode {
                     robot.duck.duckStates = DuckSpinner.States.STOP;
                     state = AutonState.STRAFETOWER;
                     robot.drive.waitAuton();
-                    robot.drive.setTargetAndMove(1000, DriveTrain.Direction.RIGHT);
+                    robot.drive.setTargetAndMove(1750, DriveTrain.Direction.RIGHT, 0.5);
+                    robot.lift.setStateLevel(Lift.States.MOVE, detectedLevel);
+
                 }else {
                     robot.duck.duckStates = DuckSpinner.States.SPINBLUE;
                 }
 
                 break;
             case STRAFETOWER:
-                if (robot.drive.getState() == DriveTrain.DriveTrainState.IDLE) {
+                if (robot.drive.readyForNext()) {
                     state = AutonState.DRIVEDEPOSIT;
-                    robot.drive.setTargetAndMove(1000, DriveTrain.Direction.FORWARD);
-                }else {
-
-                    robot.lift.setStateLevel(Lift.States.MOVE, Lift.Level.TOP);
+                    robot.drive.waitAuton();
+                    if(detectedLevel == Lift.Level.BOTTOM){
+                        target = 1110;
+                    }
+                    else if(detectedLevel == Lift.Level.MID){
+                        target = 700;
+                    }
+                    else if(detectedLevel == Lift.Level.TOP){
+                        target = 500;
+                    }
+                    robot.drive.setTargetAndMove(target, DriveTrain.Direction.FORWARD,0.5);
                 }
 
                 break;
@@ -102,15 +150,19 @@ public class BlueDuck extends OpMode {
                 if (robot.drive.getState() == DriveTrain.DriveTrainState.IDLE) {
                     state = AutonState.DEPOSIT;
                     robot.drive.waitAuton();
-                }else {
-
                 }
 
                 break;
             case DEPOSIT:
-                if(robot.lift.getState() == Lift.States.INTAKE ){
+                if(robot.lift.getState() == Lift.States.MOVE ){
                     state = AutonState.BACKWALL;
-                    robot.drive.setTargetAndMove(1000, DriveTrain.Direction.BACKWARD);
+                    if(detectedLevel == Lift.Level.BOTTOM){
+                        robot.drive.setTargetAndMove(1300, DriveTrain.Direction.BACKWARD,0.5);
+                    }
+                    else{
+                        robot.drive.setTargetAndMove(900, DriveTrain.Direction.BACKWARD,0.5);
+                    }
+
                 }else {
                     if(robot.lift.getState() == Lift.States.ATLEVEL){
                         robot.lift.dump();
@@ -119,11 +171,26 @@ public class BlueDuck extends OpMode {
 
                 break;
             case BACKWALL:
-                if(robot.drive.getState() == DriveTrain.DriveTrainState.IDLE){
+                if(robot.drive.readyForNext()){
                     robot.drive.waitAuton();
+                    this.state = AutonState.STRAFEPARK;
+                    robot.drive.setTargetAndMove(500, DriveTrain.Direction.LEFT,0.5);
                 }else{
 
                 }
+                break;
+            case STRAFEPARK:
+                if(robot.drive.getState() == DriveTrain.DriveTrainState.IDLE){
+                    robot.drive.waitAuton();
+                    this.state = AutonState.END;
+                    robot.drive.setTargetAndMove(0, DriveTrain.Direction.LEFT, 0.5);
+
+                }
+                break;
+
+            case END:
+                robot.drive.setTargetAndMove(0, DriveTrain.Direction.LEFT, 0.5);
+                robot.drive.stop();
                 break;
         }
         robot.updateState();

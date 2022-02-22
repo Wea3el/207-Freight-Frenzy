@@ -15,7 +15,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 public class Lift extends Subsystem
 {
     private DcMotor intake, lift;
-    private Servo gateIn, gateOut, slope;
+    public Servo gateIn, gateOut, slope, capstone;
     private States state;
     private Level level;
     private ElapsedTime runtime = new ElapsedTime();
@@ -37,8 +37,9 @@ public class Lift extends Subsystem
         gateIn = map.get(Servo.class, "gateIn");
         gateOut = map.get(Servo.class, "gateOut");
         slope = map.get(Servo.class, "slope");
+        capstone = map.get(Servo.class, "capstone");
 
-        slope.setPosition(0.2);
+        slope.setPosition(0.6);
 
         lift.setDirection(DcMotorSimple.Direction.REVERSE);
         lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -72,7 +73,7 @@ public class Lift extends Subsystem
 
             case IN:
                 gateIn.setPosition(0.33);
-                slope.setPosition(0.9);
+                slope.setPosition(0.8);
 
                 if(runtime.milliseconds() >1000){
                     intake.setPower(0);
@@ -96,10 +97,12 @@ public class Lift extends Subsystem
                 }
                 if(level == Level.BOTTOM || level == Level.INTAKE){
                     lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                    lift.setPower(-liftPower);
                 } else {
+                    lift.setPower(liftPower);
                     lift.setMode(DcMotor.RunMode.RUN_TO_POSITION );
                 }
-                lift.setPower(liftPower);
+
 
                 break;
 
@@ -109,8 +112,8 @@ public class Lift extends Subsystem
 
             case DUMP:
                 gateOut.setPosition(0.3);
-                if(runtime.milliseconds()>1500){
-                    slope.setPosition(0.7);
+                if(runtime.milliseconds()>3000){
+                    slope.setPosition(0.6);
                     gateOut.setPosition(0.7);
                     level = Level.INTAKE;
                     state = States.MOVE;
@@ -168,8 +171,10 @@ public class Lift extends Subsystem
             state = States.MOVE;
             level = Level.INTAKE;
         }
+
     }
     public void dump(){
+        runtime.reset();
         state = States.DUMP;
     }
 
@@ -223,6 +228,7 @@ public class Lift extends Subsystem
     public enum Level
     {
         TOP(3500),
+        MID(2000),
         BOTTOM(0),
         INTAKE(0);
 
