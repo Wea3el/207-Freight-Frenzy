@@ -31,27 +31,20 @@ public class DuckSpinner extends Subsystem
                 duck1.setPower(0);
                 duck2.setPower(0);
                 break;
-            case SPINRED:
+            case SPIN:
                 duck1.setPower(duckSpeed);
                 duck2.setPower(duckSpeed);
                 break;
-            case SPINBLUE:
-                duck1.setPower(duckSpeed);
-                duck2.setPower(duckSpeed);
-                break;
+
         }
     }
 
     @Override
     public void updateTeleopState(GamePadEx gp1, GamePadEx gp2)
     {
-        if(gp2.getControlDown(GamePadEx.ControllerButton.X)) // this might actually be gp2.y
+        if(gp2.getControl(GamePadEx.ControllerButton.DPADRIGHT)) // this might actually be gp2.y
         {
-            duckStates = States.SPINBLUE;
-        }
-        else if(gp2.getControlDown(GamePadEx.ControllerButton.Y)) // this might actually be gp2.x
-        {
-            duckStates = States.SPINRED;
+            duckStates = States.SPIN;
         }
         else
         {
@@ -67,7 +60,6 @@ public class DuckSpinner extends Subsystem
     public enum States
     {
         STOP,
-        SPINRED,
-        SPINBLUE
+        SPIN,
     }
 }

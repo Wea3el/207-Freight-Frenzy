@@ -38,7 +38,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="Blue", group="Iterative Opmode")
-//@Disabled
+@Disabled
 public class Blue extends OpMode
 {
     // Declare OpMode members.

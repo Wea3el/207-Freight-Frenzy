@@ -20,7 +20,7 @@ public class Lift extends Subsystem
     private Level level;
     private ElapsedTime runtime = new ElapsedTime();
     private double intakeSpeed = 0;
-    private double liftPower = 1;
+    private double liftPower = 0.8;
 
     private RevColorSensorV3 color;
     private TouchSensor limit;
@@ -72,8 +72,9 @@ public class Lift extends Subsystem
                 break;
 
             case IN:
+                liftPower = 1;
                 gateIn.setPosition(0.33);
-                slope.setPosition(0.8);
+                slope.setPosition(0.85);
 
                 if(runtime.milliseconds() >1000){
                     intake.setPower(0);
@@ -119,6 +120,8 @@ public class Lift extends Subsystem
                     state = States.MOVE;
                 }
                 break;
+            case MANUAL:
+                break;
         }
 
 
@@ -160,6 +163,38 @@ public class Lift extends Subsystem
             case DUMP:
                 break;
 
+            case MANUAL:
+                intake.setPower(gp2.getAxis(GamePadEx.ControllerAxis.LEFT_Y));
+                double liftpow =   gp2.getAxis(GamePadEx.ControllerAxis.RIGHT_Y);
+                if(limit.isPressed() && liftpow<0){
+                    liftpow = 0;
+                }
+                lift.setPower(liftpow);
+                if(gp2.getAxis(GamePadEx.ControllerAxis.LEFT_Y) == 0f)
+                {
+                    // default position aka pp down
+
+                    gateIn.setPosition(0.33);
+                    slope.setPosition(0.85);
+                }
+                else if(gp2.getAxis(GamePadEx.ControllerAxis.LEFT_Y)> 0.1f)
+                {
+                    // pp up position
+                    gateIn.setPosition(-0.7);
+                    slope.setPosition(0.6);
+                }
+
+                if(gp2.getControl(GamePadEx.ControllerButton.B))
+                {
+                    gateOut.setPosition(0.30);
+
+                }
+                else
+                {
+                    gateOut.setPosition(0.7);
+                }
+                break;
+
         }
         if(gp2.getControlDown(GamePadEx.ControllerButton.X)) {
             level = Level.TOP;
@@ -168,9 +203,19 @@ public class Lift extends Subsystem
             level = Level.BOTTOM;
         }
         else if(gp2.getControlDown(GamePadEx.ControllerButton.GUIDE)){
-            state = States.MOVE;
-            level = Level.INTAKE;
+            state = States.MANUAL;
+            lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            intake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
+
+        if(gp1.getControl(GamePadEx.ControllerButton.B)){
+            capstone.setPosition(1);
+        }
+        else{
+            capstone.setPosition(0.6);
+        }
+        telemetry.addData("lift",lift.getCurrentPosition());
+        telemetry.addData("limit", limit.isPressed());
 
     }
     public void dump(){
@@ -191,7 +236,7 @@ public class Lift extends Subsystem
     {
         lift.setTargetPosition(numTicks);
         if (level == Level.INTAKE || level == Level.BOTTOM) {
-            if(limit.isPressed()){
+            if(limit.isPressed() || lift.getCurrentPosition() < 0){
                 return true;
             }
         } else {
@@ -223,14 +268,15 @@ public class Lift extends Subsystem
         ATLEVEL,
         DUMP,
         IN,
+        MANUAL,
     }
 
     public enum Level
     {
         TOP(3500),
         MID(2000),
-        BOTTOM(0),
-        INTAKE(0);
+        BOTTOM(30),
+        INTAKE(30);
 
         public final int numTicks;
 

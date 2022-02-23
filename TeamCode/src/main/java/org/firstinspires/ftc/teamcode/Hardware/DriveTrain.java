@@ -289,6 +289,7 @@ public class DriveTrain extends Subsystem {
 
         setMotorMode(DcMotor.RunMode.RUN_TO_POSITION);
         this.state = DriveTrainState.MOVE;
+
     }
 
     public void waitAuton(){

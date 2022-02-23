@@ -43,7 +43,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="FieldCentric", group="Iterative Opmode")
-//@Disabled
+@Disabled
 public class FieldCentricBaby extends OpMode
 {
     // Declare OpMode members.

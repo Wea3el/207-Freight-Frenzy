@@ -124,7 +124,7 @@ public class RedSide extends OpMode {
                     robot.lift.setStateLevel(Lift.States.MOVE, detectedLevel);
 
                 }else {
-                    robot.duck.duckStates = DuckSpinner.States.SPINBLUE;
+                    robot.duck.duckStates = DuckSpinner.States.SPIN;
                 }
 
                 break;

@@ -34,6 +34,7 @@ package org.firstinspires.ftc.teamcode.Teleop;
 //----------------------------
 
 import com.qualcomm.hardware.rev.RevColorSensorV3;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -43,7 +44,6 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-
 @TeleOp(name="NewBotBlue", group="Iterative Opmode")
 //@Disabled
 public class NewBotBlue extends OpMode
@@ -224,11 +224,11 @@ public class NewBotBlue extends OpMode
         }
 
         if(gamepad2.x){
-            power = 0.25;
+            power = 0.6;
             runtime.reset();
         }
         else if(gamepad2.y){
-            power = -0.25;
+            power = -0.6;
             runtime.reset();
         }
         else{

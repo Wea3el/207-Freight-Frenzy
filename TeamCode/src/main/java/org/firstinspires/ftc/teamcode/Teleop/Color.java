@@ -41,7 +41,7 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="Color", group="Iterative Opmode")
-//@Disabled
+@Disabled
 public class Color extends OpMode
 {
     // Declare OpMode members.

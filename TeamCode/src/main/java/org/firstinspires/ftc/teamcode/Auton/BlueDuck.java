@@ -92,8 +92,6 @@ public class BlueDuck extends OpMode {
                     state = AutonState.TURNDUCK;
                     runtime.reset();
                     robot.drive.waitAuton();
-                }else {
-
                 }
 
                 break;
@@ -101,7 +99,7 @@ public class BlueDuck extends OpMode {
                 if(robot.drive.readyForNext() &&  runtime.milliseconds() >3000){
                     runtime.reset();
                     state = AutonState.DRIVEDUCK;
-                    robot.drive.setTargetAndMove(690, DriveTrain.Direction.BACKWARD,0.1);
+                    robot.drive.setTargetAndMove(700, DriveTrain.Direction.BACKWARD,0.1);
                 }else{
                     robot.drive.turn(90);
                 }
@@ -125,7 +123,7 @@ public class BlueDuck extends OpMode {
                     robot.lift.setStateLevel(Lift.States.MOVE, detectedLevel);
 
                 }else {
-                    robot.duck.duckStates = DuckSpinner.States.SPINBLUE;
+                    robot.duck.duckStates = DuckSpinner.States.SPIN;
                 }
 
                 break;
@@ -174,7 +172,7 @@ public class BlueDuck extends OpMode {
                 if(robot.drive.readyForNext()){
                     robot.drive.waitAuton();
                     this.state = AutonState.STRAFEPARK;
-                    robot.drive.setTargetAndMove(500, DriveTrain.Direction.LEFT,0.5);
+                    robot.drive.setTargetAndMove(520, DriveTrain.Direction.LEFT,0.5);
                 }else{
 
                 }
@@ -183,13 +181,13 @@ public class BlueDuck extends OpMode {
                 if(robot.drive.getState() == DriveTrain.DriveTrainState.IDLE){
                     robot.drive.waitAuton();
                     this.state = AutonState.END;
-                    robot.drive.setTargetAndMove(0, DriveTrain.Direction.LEFT, 0.5);
+                    robot.drive.setTargetAndMove(0, DriveTrain.Direction.LEFT, 0);
 
                 }
                 break;
 
             case END:
-                robot.drive.setTargetAndMove(0, DriveTrain.Direction.LEFT, 0.5);
+                robot.drive.setTargetAndMove(0, DriveTrain.Direction.LEFT, 0);
                 robot.drive.stop();
                 break;
         }
