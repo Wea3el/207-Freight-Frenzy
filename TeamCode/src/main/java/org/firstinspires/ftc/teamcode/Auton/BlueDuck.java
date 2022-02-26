@@ -50,34 +50,41 @@ public class BlueDuck extends OpMode {
 
         this.detectedLevel = this.vision.currentDeterminationReverse();
 
+        try{
+            if (this.detectedLevel != null) {
+                // Add to value if detected
+                switch (this.detectedLevel) {
+                    case TOP:
+                        this.one++;
+                        break;
+                    case MID:
+                        this.two++;
+                        break;
+                    case BOTTOM:
+                        this.three++;
+                        break;
+                }
+                if(one > 3000 || two >3000 || three >3000 || runtime.milliseconds() > 5000){
+                    one = 0;
+                    two = 0;
+                    three = 0;
+                    runtime.reset();
+                }
+                telemetry.addData("Current detected level: ", this.detectedLevel);
 
-        if (this.detectedLevel != null) {
-            // Add to value if detected
-            switch (this.detectedLevel) {
-                case TOP:
-                    this.one++;
-                    break;
-                case MID:
-                    this.two++;
-                    break;
-                case BOTTOM:
-                    this.three++;
-                    break;
-            }
-            if(one > 3000 || two >3000 || three >3000){
-                one = 0;
-                two = 0;
-                three = 0;
-            }
-            telemetry.addData("Current detected level: ", this.detectedLevel);
+                telemetry.addLine("-------------------------------------");
+                telemetry.addLine("Overall detection numbers: (PRESS A TO RESET)");
+                telemetry.addData("LEVEL 1: ", this.one);
+                telemetry.addData("LEVEL 2: ", this.two);
+                telemetry.addData("LEVEL 3: ", this.three);
 
-            telemetry.addLine("-------------------------------------");
-            telemetry.addLine("Overall detection numbers: (PRESS A TO RESET)");
-            telemetry.addData("LEVEL 1: ", this.one);
-            telemetry.addData("LEVEL 2: ", this.two);
-            telemetry.addData("LEVEL 3: ", this.three);
+                telemetry.update();
+        }
 
-            telemetry.update();
+
+        }
+        catch(Exception e){
+            e.printStackTrace();
         }
 
     }
@@ -148,10 +155,10 @@ public class BlueDuck extends OpMode {
                     state = AutonState.DRIVEDEPOSIT;
                     robot.drive.waitAuton();
                     if(detectedLevel == Lift.Level.BOTTOM){
-                        target = 1110;
+                        target = 1160;
                     }
                     else if(detectedLevel == Lift.Level.MID){
-                        target = 700;
+                        target = 750;
                     }
                     else if(detectedLevel == Lift.Level.TOP){
                         target = 500;

@@ -46,38 +46,60 @@ public class RedSide extends OpMode {
     @Override
     public void init_loop() {
         // Get current detection every loop
-        this.detectedLevel = this.vision.currentDetermination();
+        try{
+            this.detectedLevel = this.vision.currentDetermination();
 
-        if (this.detectedLevel != null) {
-            // Add to value if detected
-            switch (this.detectedLevel) {
-                case TOP:
-                    this.one++;
-                    break;
-                case MID:
-                    this.two++;
-                    break;
-                case BOTTOM:
-                    this.three++;
-                    break;
+            if (this.detectedLevel != null) {
+                // Add to value if detected
+                switch (this.detectedLevel) {
+                    case TOP:
+                        this.one++;
+                        break;
+                    case MID:
+                        this.two++;
+                        break;
+                    case BOTTOM:
+                        this.three++;
+                        break;
+                }
+                if(one > 3000 || two >3000 || three >3000 || runtime.milliseconds() > 5000){
+                    one = 0;
+                    two = 0;
+                    three = 0;
+                    runtime.reset();
+                }
+
+
+                telemetry.addData("Current detected level: ", this.detectedLevel);
+
+                telemetry.addLine("-------------------------------------");
+                telemetry.addLine("Overall detection numbers: (PRESS A TO RESET)");
+                telemetry.addData("LEVEL 1: ", this.one);
+                telemetry.addData("LEVEL 2: ", this.two);
+                telemetry.addData("LEVEL 3: ", this.three);
+
+                telemetry.update();
             }
-
-
-            telemetry.addData("Current detected level: ", this.detectedLevel);
-
-            telemetry.addLine("-------------------------------------");
-            telemetry.addLine("Overall detection numbers: (PRESS A TO RESET)");
-            telemetry.addData("LEVEL 1: ", this.one);
-            telemetry.addData("LEVEL 2: ", this.two);
-            telemetry.addData("LEVEL 3: ", this.three);
-
-            telemetry.update();
         }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+
 
     }
 
     @Override
     public void start() {
+        if(one > two && one > three){
+            detectedLevel = Lift.Level.TOP;
+        }
+        else if(two > three && two > one){
+            detectedLevel = Lift.Level.MID;
+
+        }
+        else if (three > two && three > one){
+            detectedLevel = Lift.Level.BOTTOM;
+        }
         robot.drive.setTargetAndMove(180, DriveTrain.Direction.BACKWARD, 0.5);
 
 
@@ -101,7 +123,7 @@ public class RedSide extends OpMode {
                 if(robot.drive.readyForNext() &&  runtime.milliseconds() >3000){
                     runtime.reset();
                     state = AutonState.DRIVEDUCK;
-                    robot.drive.setTargetAndMove(690, DriveTrain.Direction.BACKWARD,0.1);
+                    robot.drive.setTargetAndMove(700, DriveTrain.Direction.BACKWARD,0.1);
                 }else{
                     robot.drive.turn(270);
                 }
@@ -134,7 +156,7 @@ public class RedSide extends OpMode {
                     state = AutonState.DRIVEDEPOSIT;
                     robot.drive.waitAuton();
                     if(detectedLevel == Lift.Level.BOTTOM){
-                        target = 1050;
+                        target = 1070;
                     }
                     else if(detectedLevel == Lift.Level.MID){
                         target = 700;
