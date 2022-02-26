@@ -44,7 +44,7 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-@TeleOp(name="NewBotBlue", group="Iterative Opmode")
+@TeleOp(name="ManualBlue", group="Iterative Opmode")
 //@Disabled
 public class NewBotBlue extends OpMode
 {
@@ -79,6 +79,7 @@ public class NewBotBlue extends OpMode
     private Servo gateIn;
     private Servo slope;
     private Servo gateOut;
+    private Servo capstone;
 
     private Servo cap;
 
@@ -104,6 +105,7 @@ public class NewBotBlue extends OpMode
         gateIn = hardwareMap.get(Servo.class, "gateIn");
         slope = hardwareMap.get(Servo.class, "slope");
         gateOut = hardwareMap.get(Servo.class, "gateOut");
+        capstone = hardwareMap.get(Servo.class, "capstone");
 
         lift.setDirection(DcMotorSimple.Direction.REVERSE);
 
@@ -177,7 +179,7 @@ public class NewBotBlue extends OpMode
         else{
             frontRight.setPower(gamepad1.right_stick_y * speed);
             frontLeft.setPower(gamepad1.left_stick_y * speed);
-            backRight.setPower(gamepad1.right_stick_y * speed );
+            backRight.setPower(gamepad1.right_stick_y * speed);
             backLeft.setPower(gamepad1.left_stick_y * speed);
             intake.setPower(gamepad2.left_stick_y);
 //            leftLift.setPower(gamepad2.right_stick_y *0.5);
@@ -188,25 +190,14 @@ public class NewBotBlue extends OpMode
                 liftpow = 0;
             }
             lift.setPower(liftpow);
-
-
-            if(gamepad2.dpad_down && liftPos != 0)
-            {
-                //leftLift
-                // FIX THIS LATER
-            }
-
             if(gamepad2.left_stick_y == 0f)
             {
                 // default position aka pp down
-
                 gateIn.setPosition(0.33);
                 slope.setPosition(1);
             }
             else if(gamepad2.left_stick_y > 0.1f)
             {
-
-
                 // pp up position
                 gateIn.setPosition(-0.7);
                 slope.setPosition(0.6);
@@ -215,7 +206,6 @@ public class NewBotBlue extends OpMode
             if(gamepad2.b)
             {
                 gateOut.setPosition(0.30);
-
             }
             else
             {
@@ -223,21 +213,23 @@ public class NewBotBlue extends OpMode
             }
         }
 
+        if(gamepad1.b){
+            capstone.setPosition(0.67);
+        }
+        else{
+            capstone.setPosition(1);
+        }
+
         if(gamepad2.x){
-            power = 0.6;
+            power = 0.7;
             runtime.reset();
         }
-        else if(gamepad2.y){
-            power = -0.6;
-            runtime.reset();
-        }
+
         else{
             power = 0;
         }
-        duck1.setPower(0.8 * power);
-
-
-
+        duck1.setPower(power);
+        duck2.setPower(power);
         if(gamepad1.right_stick_button ){
             if(speed == 1){
                 speed = 0.5;

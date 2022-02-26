@@ -32,7 +32,7 @@ public class RedSide extends OpMode {
 
     @Override
     public void init() {
-        robot = new Robot(gamepad1, gamepad2, hardwareMap, telemetry, true, false);
+        robot = new Robot(gamepad1, gamepad2, hardwareMap, telemetry, true, true);
         robot.init();
         state = AutonState.PULLOUT;
         vision = new VisionWrapper(telemetry);
@@ -46,7 +46,7 @@ public class RedSide extends OpMode {
     @Override
     public void init_loop() {
         // Get current detection every loop
-        this.detectedLevel = this.vision.currentDeterminationReverse();
+        this.detectedLevel = this.vision.currentDetermination();
 
         if (this.detectedLevel != null) {
             // Add to value if detected
@@ -61,6 +61,7 @@ public class RedSide extends OpMode {
                     this.three++;
                     break;
             }
+
 
             telemetry.addData("Current detected level: ", this.detectedLevel);
 
@@ -77,7 +78,7 @@ public class RedSide extends OpMode {
 
     @Override
     public void start() {
-        robot.drive.setTargetAndMove(170, DriveTrain.Direction.BACKWARD, 0.5);
+        robot.drive.setTargetAndMove(180, DriveTrain.Direction.BACKWARD, 0.5);
 
 
     }
@@ -133,7 +134,7 @@ public class RedSide extends OpMode {
                     state = AutonState.DRIVEDEPOSIT;
                     robot.drive.waitAuton();
                     if(detectedLevel == Lift.Level.BOTTOM){
-                        target = 1110;
+                        target = 1050;
                     }
                     else if(detectedLevel == Lift.Level.MID){
                         target = 700;
@@ -182,13 +183,13 @@ public class RedSide extends OpMode {
                 if(robot.drive.getState() == DriveTrain.DriveTrainState.IDLE){
                     robot.drive.waitAuton();
                     this.state = AutonState.END;
-                    robot.drive.setTargetAndMove(0, DriveTrain.Direction.LEFT, 0.5);
+                    robot.drive.setTargetAndMove(0, DriveTrain.Direction.LEFT, 0);
 
                 }
                 break;
 
             case END:
-                robot.drive.setTargetAndMove(0, DriveTrain.Direction.LEFT, 0.5);
+                robot.drive.setTargetAndMove(0, DriveTrain.Direction.LEFT, 0);
                 robot.drive.stop();
                 break;
         }

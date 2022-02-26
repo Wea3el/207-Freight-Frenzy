@@ -21,7 +21,7 @@ public class VisionWrapper {
     private GripPipeline grip;
     private Telemetry tele;
 
-    private static final int CAMERA_WIDTH = 80;
+    private static final int CAMERA_WIDTH = 320;
 
     public VisionWrapper(Telemetry tele){
         grip = new GripPipeline();
@@ -57,7 +57,7 @@ public class VisionWrapper {
 
         // if there are no contours found, duck is out of camera frame meaning level 3
         if(contours.size() == 0){
-            return Lift.Level.BOTTOM;
+            return Lift.Level.TOP;
         }else{
             double xSum = 0;
 
@@ -81,7 +81,7 @@ public class VisionWrapper {
             }//  If average center of mass is not greater than half the screen, then it is on
             //      the left and should go to level one
             else {
-                return Lift.Level.TOP;
+                return Lift.Level.BOTTOM;
             }
         }
     }
@@ -93,7 +93,7 @@ public class VisionWrapper {
 
         // if there are no contours found, duck is out of camera frame meaning level 3
         if(contours.size() == 0){
-            return Lift.Level.TOP;
+            return Lift.Level.BOTTOM;
         }else{
             // find the average center of mass on the screen and if it is greater than 1/2 the
             //    width, it is level 2 and level 1 if less than half the width
@@ -108,7 +108,7 @@ public class VisionWrapper {
             xSum /= contours.size();
 
             if (xSum > CAMERA_WIDTH/2) {
-                return Lift.Level.BOTTOM;
+                return Lift.Level.TOP;
             } else {
                 return Lift.Level.MID;
             }

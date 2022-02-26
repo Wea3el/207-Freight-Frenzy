@@ -47,7 +47,9 @@ public class BlueDuck extends OpMode {
     @Override
     public void init_loop() {
         // Get current detection every loop
-        this.detectedLevel = this.vision.currentDetermination();
+
+        this.detectedLevel = this.vision.currentDeterminationReverse();
+
 
         if (this.detectedLevel != null) {
             // Add to value if detected
@@ -62,7 +64,11 @@ public class BlueDuck extends OpMode {
                     this.three++;
                     break;
             }
-
+            if(one > 3000 || two >3000 || three >3000){
+                one = 0;
+                two = 0;
+                three = 0;
+            }
             telemetry.addData("Current detected level: ", this.detectedLevel);
 
             telemetry.addLine("-------------------------------------");
@@ -78,7 +84,17 @@ public class BlueDuck extends OpMode {
 
     @Override
     public void start() {
-        robot.drive.setTargetAndMove(170, DriveTrain.Direction.BACKWARD, 0.5);
+        if(one > two && one > three){
+            detectedLevel = Lift.Level.TOP;
+        }
+        else if(two > three && two > one){
+            detectedLevel = Lift.Level.MID;
+
+        }
+        else if (three > two && three > one){
+            detectedLevel = Lift.Level.BOTTOM;
+        }
+        robot.drive.setTargetAndMove(180, DriveTrain.Direction.BACKWARD, 0.5);
 
 
     }

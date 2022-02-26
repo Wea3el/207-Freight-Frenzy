@@ -29,25 +29,29 @@
 
 package org.firstinspires.ftc.teamcode.Teleop;
 
-import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
+//----------------------------
+// WIFI PASSWORD IS PAGNOM207
+//----------------------------
+
+import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-
-@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="Red", group="Iterative Opmode")
+@TeleOp(name="ManualRed", group="Iterative Opmode")
 //@Disabled
 public class Red extends OpMode
 {
+
+    //sensors
+    private RevColorSensorV3 color;
+    private TouchSensor limit;
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotor frontRight;
@@ -55,18 +59,32 @@ public class Red extends OpMode
     private DcMotor backLeft;
     private DcMotor frontLeft;
     private DcMotor intake;
-    private DcMotor duck;
-    private DcMotor lift;
+
+    // duck
+    private DcMotor duck1;
+    private DcMotor duck2;
+
+
     private double power;
     private double strafePower;
-    private Servo spit;
     private double speed = 1;
-    private double curHeading;
-    private boolean fieldCentric = false;
-    private double liftSpeed = 0.5;
+    private boolean xHeld;
+    private boolean yHeld;
 
-    BNO055IMU imu;
-    BNO055IMU.Parameters parameters;
+
+    // lift motors
+    private DcMotor lift;
+
+    // intake and outtake servos
+    private Servo gateIn;
+    private Servo slope;
+    private Servo gateOut;
+    private Servo capstone;
+
+    private Servo cap;
+
+    int liftPos;
+
     /*
      * Code to run ONCE when the driver hits INIT
      */
@@ -80,21 +98,30 @@ public class Red extends OpMode
         backLeft= hardwareMap.get(DcMotor.class, "BL");
         frontLeft = hardwareMap.get(DcMotor.class, "FL");
         intake = hardwareMap.get(DcMotor.class, "intake");
-        duck = hardwareMap.get(DcMotor.class, "duck");
+        duck1 = hardwareMap.get(DcMotor.class, "duck1");
+        duck2 = hardwareMap.get(DcMotor.class, "duck2");
         lift = hardwareMap.get(DcMotor.class, "lift");
-        spit = hardwareMap.get(Servo.class, "spit");
 
-        frontRight.setDirection(DcMotor.Direction.REVERSE);
-        backRight.setDirection(DcMotor.Direction.REVERSE);
-        frontLeft.setDirection(DcMotor.Direction.FORWARD);
-        backLeft.setDirection(DcMotor.Direction.FORWARD);
+        gateIn = hardwareMap.get(Servo.class, "gateIn");
+        slope = hardwareMap.get(Servo.class, "slope");
+        gateOut = hardwareMap.get(Servo.class, "gateOut");
+        capstone = hardwareMap.get(Servo.class, "capstone");
+
+        lift.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        frontRight.setDirection(DcMotor.Direction.FORWARD);
+        backRight.setDirection(DcMotor.Direction.FORWARD);
+        frontLeft.setDirection(DcMotor.Direction.REVERSE);
+        backLeft.setDirection(DcMotor.Direction.REVERSE);
+        lift.setDirection(DcMotorSimple.Direction.REVERSE);
 
         frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
         frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
+        duck1.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
+        duck2.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
         lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
-        duck.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
 
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -102,10 +129,13 @@ public class Red extends OpMode
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        imu = hardwareMap.get(BNO055IMU.class, "imu");
-        parameters = new BNO055IMU.Parameters();
-        parameters.loggingEnabled = true;
-        parameters.loggingTag = "IMU";
+        slope.setPosition(0.2);
+        liftPos = 0;
+
+
+        color = hardwareMap.get(RevColorSensorV3.class, "color");
+        limit = hardwareMap.get(TouchSensor.class, "Limit");
+
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
     }
@@ -131,112 +161,82 @@ public class Red extends OpMode
     @Override
     public void loop() {
         // Setup a variable for each drive wheel to save power level for telemetry
-        if(fieldCentric){
-            curHeading = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
-            // Setup a variable for each drive wheel to save power level for telemetry
+        if(gamepad1.right_trigger > 0.1){
+            strafePower = gamepad1.right_trigger;
+            frontRight.setPower(strafePower);
+            frontLeft.setPower(-strafePower);
+            backRight.setPower(-strafePower);
+            backLeft.setPower(strafePower);
+        }
 
-            double forward = (-1) * gamepad1.left_stick_y;
-            double strafe = gamepad1.left_stick_x;
-            double clockwise = gamepad1.right_stick_x;
-
-            // Apply the turn modifier
-            clockwise *= 1; //Test and see if should be lowered / raised for desired control
-
-            // Convert to Radians for Math.sin/cos
-            double orient = Math.toRadians(curHeading);
-            double sin = Math.sin(orient);
-            double cos = Math.cos(orient);
-
-            // Apply the rotation matrix
-            double temp = forward * cos - strafe * sin;
-            strafe = forward * sin + strafe * cos;
-            forward = temp;
-
-            // Set power values
-            double flPow = forward + clockwise + strafe;
-            double frPow = forward - clockwise - strafe;
-            double blPow = forward + clockwise - strafe;
-            double rrPow = forward - clockwise + strafe;
-
-            double max = Math.max(1, Math.abs(forward) + Math.abs(strafe) + Math.abs(clockwise));
-
-            // Clip power values to within acceptable ranges for the motors
-            flPow /= max;
-            frPow /= max;
-            blPow /= max;
-            rrPow /= max;
-
-            frontLeft.setPower(flPow);
-            frontRight.setPower(frPow);
-            backLeft.setPower(blPow);
-            backRight.setPower(rrPow);
+        else if(gamepad1.left_trigger > 0.1){
+            strafePower = gamepad1.left_trigger;
+            frontRight.setPower(-strafePower);
+            frontLeft.setPower(strafePower);
+            backRight.setPower(strafePower);
+            backLeft.setPower(-strafePower);
         }
         else{
-            if(gamepad1.left_trigger > 0.1){
-                strafePower = gamepad1.left_trigger;
-                frontRight.setPower(strafePower);
-                frontLeft.setPower(-strafePower);
-                backRight.setPower(-strafePower);
-                backLeft.setPower(strafePower);
+            frontRight.setPower(gamepad1.right_stick_y * speed);
+            frontLeft.setPower(gamepad1.left_stick_y * speed);
+            backRight.setPower(gamepad1.right_stick_y * speed);
+            backLeft.setPower(gamepad1.left_stick_y * speed);
+            intake.setPower(gamepad2.left_stick_y);
+//            leftLift.setPower(gamepad2.right_stick_y *0.5);
+//            rightLift.setPower(gamepad2.right_stick_y *0.5);
+
+            double liftpow =   gamepad2.right_stick_y;
+            if(limit.isPressed() && liftpow<0){
+                liftpow = 0;
+            }
+            lift.setPower(liftpow);
+            if(gamepad2.left_stick_y == 0f)
+            {
+                // default position aka pp down
+                gateIn.setPosition(0.33);
+                slope.setPosition(1);
+            }
+            else if(gamepad2.left_stick_y > 0.1f)
+            {
+                // pp up position
+                gateIn.setPosition(-0.7);
+                slope.setPosition(0.6);
             }
 
-            else if(gamepad1.right_trigger > 0.1){
-                strafePower = gamepad1.right_trigger;
-                frontRight.setPower(-strafePower);
-                frontLeft.setPower(strafePower);
-                backRight.setPower(strafePower);
-                backLeft.setPower(-strafePower);
+            if(gamepad2.b)
+            {
+                gateOut.setPosition(0.30);
             }
-            else{
-                frontRight.setPower(gamepad1.right_stick_y * speed);
-                frontLeft.setPower(gamepad1.left_stick_y * speed);
-                backRight.setPower(gamepad1.right_stick_y * speed );
-                backLeft.setPower(gamepad1.left_stick_y * speed);
-                intake.setPower(gamepad2.left_stick_y);
-                lift.setPower(gamepad2.right_stick_y *0.5);
-
+            else
+            {
+                gateOut.setPosition(0.7);
             }
-
-
-            if(gamepad2.b){
-                spit.setPosition(1);
-            }
-
-            else{
-                spit.setPosition(0);
-            }
-
-
-            if(gamepad2.x){
-                power = 0.25;
-                runtime.reset();
-            }
-            else if(gamepad2.y){
-                power = -0.25;
-                runtime.reset();
-            }
-            else{
-                power = 0;
-            }
-            duck.setPower(power);
-
-
-
-            if(gamepad1.right_stick_button ){
-                if(speed == 1){
-                    speed = 0.5;
-                }
-                else{
-                    speed = 1;
-                }
-            }
-
-
         }
 
         if(gamepad1.b){
-            fieldCentric = !fieldCentric;
+            capstone.setPosition(0.67);
+        }
+        else{
+            capstone.setPosition(1);
+        }
 
+        if(gamepad2.x){
+            power = -0.7;
+            runtime.reset();
+        }
+
+        else{
+            power = 0;
+        }
+        duck1.setPower(power);
+        duck2.setPower(power);
+        if(gamepad1.right_stick_button ){
+            if(speed == 1){
+                speed = 0.5;
+            }
+            else{
+                speed = 1;
+            }
         }
 
 
@@ -252,14 +252,22 @@ public class Red extends OpMode
 
 
 
+        telemetry.addData("SPEED", power);
 
-        telemetry.addData("frontLeft", frontLeft.getCurrentPosition());
-        telemetry.addData("frontRight", frontRight.getCurrentPosition());
-        telemetry.addData("backRight", backRight.getCurrentPosition());
-        telemetry.addData("backLeft", backLeft.getCurrentPosition());
+        telemetry.addData("gateIn", gateIn.getPosition());
+        telemetry.addData("gateOut", gateOut.getPosition());
+        telemetry.addData("slope", slope.getPosition());
+        telemetry.addData("blue", color.blue());
+        telemetry.addData("red", color.red());// red for cubes
+        telemetry.addData("green", color.green());
+        telemetry.addData("argb", color.argb());
+        telemetry.addData("alpha", color.alpha());//
+        telemetry.addData("distance", color.getDistance(DistanceUnit.CM));
         telemetry.addData("lift", lift.getCurrentPosition());
-        telemetry.addData("spit", spit.getPosition());
-        telemetry.addData("SPEED", duck.getPower());
+
+        telemetry.addData("limit", limit.getValue());
+
+
         telemetry.update();
 
         // Send calculated power to wheels
@@ -275,3 +283,8 @@ public class Red extends OpMode
     public void stop() {
     }
 }
+
+
+
+
+
