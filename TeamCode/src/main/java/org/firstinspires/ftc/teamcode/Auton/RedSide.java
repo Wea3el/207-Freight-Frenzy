@@ -123,7 +123,7 @@ public class RedSide extends OpMode {
                 if(robot.drive.readyForNext() &&  runtime.milliseconds() >3000){
                     runtime.reset();
                     state = AutonState.DRIVEDUCK;
-                    robot.drive.setTargetAndMove(700, DriveTrain.Direction.BACKWARD,0.1);
+                    robot.drive.setTargetAndMove(720, DriveTrain.Direction.BACKWARD,0.1);
                 }else{
                     robot.drive.turn(270);
                 }
@@ -156,7 +156,7 @@ public class RedSide extends OpMode {
                     state = AutonState.DRIVEDEPOSIT;
                     robot.drive.waitAuton();
                     if(detectedLevel == Lift.Level.BOTTOM){
-                        target = 1070;
+                        target = 1100;
                     }
                     else if(detectedLevel == Lift.Level.MID){
                         target = 700;
@@ -164,7 +164,7 @@ public class RedSide extends OpMode {
                     else if(detectedLevel == Lift.Level.TOP){
                         target = 500;
                     }
-                    robot.drive.setTargetAndMove(target, DriveTrain.Direction.FORWARD,0.5);
+                    robot.drive.setTargetAndMove(target, DriveTrain.Direction.FORWARD,0.3);
                 }
 
                 break;

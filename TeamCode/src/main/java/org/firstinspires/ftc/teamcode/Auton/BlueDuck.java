@@ -163,7 +163,7 @@ public class BlueDuck extends OpMode {
                     else if(detectedLevel == Lift.Level.TOP){
                         target = 500;
                     }
-                    robot.drive.setTargetAndMove(target, DriveTrain.Direction.FORWARD,0.5);
+                    robot.drive.setTargetAndMove(target, DriveTrain.Direction.FORWARD,0.3);
                 }
 
                 break;
