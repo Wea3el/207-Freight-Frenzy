@@ -94,7 +94,7 @@ public class DriveTrain extends Subsystem {
                 break;
 
             case TURN:
-                if(onHeading(angle) & runtime.milliseconds()>1500){
+                if(onHeading(angle) || runtime.milliseconds()>3000){
                     state = DriveTrainState.IDLE;
                     this.setMotorMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 }
@@ -318,7 +318,7 @@ public class DriveTrain extends Subsystem {
         // determine turn power based on +/- error
 
 
-        if (Math.abs(error) <= HEADING_THRESHOLD) {
+        if (Math.abs(error) <= HEADING_THRESHOLD ) {
             steer = 0.0;
             leftSpeed  = 0.0;
             rightSpeed = 0.0;

@@ -59,6 +59,7 @@ public class Red extends OpMode
     private DcMotor backLeft;
     private DcMotor frontLeft;
     private DcMotor intake;
+    private boolean cap;
 
     // duck
     private DcMotor duck1;
@@ -81,7 +82,6 @@ public class Red extends OpMode
     private Servo gateOut;
     private Servo capstone;
 
-    private Servo cap;
 
     int liftPos;
 
@@ -212,11 +212,14 @@ public class Red extends OpMode
                 gateOut.setPosition(0.7);
             }
         }
-
-        if(gamepad1.b){
-            capstone.setPosition(0.67);
+        if(gamepad1.b && runtime.milliseconds() > 500){
+            cap = !cap;
+            runtime.reset();
         }
-        else{
+        if(cap){
+            capstone.setPosition(0.66);
+        }
+        else if(cap == false){
             capstone.setPosition(1);
         }
 

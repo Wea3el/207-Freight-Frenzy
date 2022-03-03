@@ -27,7 +27,7 @@ public class BlueWarehouse extends OpMode {
 
 
     enum AutonState {
-        MOVEFORTURN,STRAFETOWER, MOVETOWER, TURN180, TURNWAREHOUSE, STRAFELINEUP, MOVEWAREHOUSE,END
+        MOVEFORTURN,TURN90, TURN180,STRAFETOWER, MOVETOWER, DEPOSIT, TURNWAREHOUSE, STRAFELINEUP, MOVEWAREHOUSE,END
 
     }
 
@@ -35,7 +35,7 @@ public class BlueWarehouse extends OpMode {
     public void init() {
         robot = new Robot(gamepad1, gamepad2, hardwareMap, telemetry, true, false);
         robot.init();
-        state = AutonState.STRAFETOWER;
+        state = AutonState.MOVEFORTURN;
         vision = new VisionWrapper(telemetry);
         vision.init(hardwareMap);
         detectedLevel = Lift.Level.TOP; // immediately overwritten but safer without null
@@ -79,7 +79,7 @@ public class BlueWarehouse extends OpMode {
 
     @Override
     public void start() {
-        robot.drive.setTargetAndMove(100, DriveTrain.Direction.FORWARD,0.5);
+        robot.drive.setTargetAndMove(100, DriveTrain.Direction.BACKWARD,0.5);
 
     }
 
@@ -94,12 +94,13 @@ public class BlueWarehouse extends OpMode {
                     robot.drive.waitAuton();
                 }
                 break;
+
             case TURN180:
                 if(robot.drive.readyForNext() && runtime.milliseconds() > 3000){
                     runtime.reset();
                     state = AutonState.STRAFETOWER;
                     robot.drive.waitAuton();
-                    robot.drive.setTargetAndMove(170, DriveTrain.Direction.RIGHT, 0.5);
+                    robot.drive.setTargetAndMove(300, DriveTrain.Direction.LEFT, 0.5);
                     robot.lift.setStateLevel(Lift.States.MOVE, detectedLevel);
                 }
                 else{
@@ -122,20 +123,26 @@ public class BlueWarehouse extends OpMode {
                     }
                     robot.drive.setTargetAndMove(target, DriveTrain.Direction.BACKWARD,0.5);
                 }
-
-
                 break;
 
             case MOVETOWER:
                 if (robot.drive.readyForNext()){
-                    state = AutonState.TURNWAREHOUSE;
+                    state = AutonState.DEPOSIT;
                     runtime.reset();
                     robot.drive.waitAuton();
-
                 }
 
                 break;
-
+            case DEPOSIT:
+                if(robot.lift.getState() == Lift.States.MOVE ){
+                    state = AutonState.TURNWAREHOUSE;
+                }
+                else{
+                    if(robot.lift.getState() == Lift.States.ATLEVEL){
+                        robot.lift.dump();
+                    }
+                }
+                break;
             case TURNWAREHOUSE:
                 if(robot.drive.readyForNext() &&  runtime.milliseconds() >3000){
                     runtime.reset();

@@ -100,7 +100,7 @@ public class RedSide extends OpMode {
         else if (three > two && three > one){
             detectedLevel = Lift.Level.BOTTOM;
         }
-        robot.drive.setTargetAndMove(180, DriveTrain.Direction.BACKWARD, 0.5);
+        robot.drive.setTargetAndMove(190, DriveTrain.Direction.BACKWARD, 0.5);
 
 
     }
@@ -123,7 +123,7 @@ public class RedSide extends OpMode {
                 if(robot.drive.readyForNext() &&  runtime.milliseconds() >3000){
                     runtime.reset();
                     state = AutonState.DRIVEDUCK;
-                    robot.drive.setTargetAndMove(720, DriveTrain.Direction.BACKWARD,0.1);
+                    robot.drive.setTargetAndMove(690, DriveTrain.Direction.BACKWARD,0.1);
                 }else{
                     robot.drive.turn(270);
                 }

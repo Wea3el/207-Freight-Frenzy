@@ -39,11 +39,14 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.Hardware.GamePadEx;
+
 @TeleOp(name="ManualBlue", group="Iterative Opmode")
 //@Disabled
 public class NewBotBlue extends OpMode
@@ -59,6 +62,8 @@ public class NewBotBlue extends OpMode
     private DcMotor backLeft;
     private DcMotor frontLeft;
     private DcMotor intake;
+    private GamePadEx gp2 = new GamePadEx(gamepad2);
+    private boolean cap;
 
     // duck
     private DcMotor duck1;
@@ -68,10 +73,7 @@ public class NewBotBlue extends OpMode
     private double power;
     private double strafePower;
     private double speed = 1;
-    private boolean xHeld;
-    private boolean yHeld;
-
-
+    private boolean bDown;
     // lift motors
     private DcMotor lift;
 
@@ -81,7 +83,6 @@ public class NewBotBlue extends OpMode
     private Servo gateOut;
     private Servo capstone;
 
-    private Servo cap;
 
     int liftPos;
 
@@ -213,12 +214,18 @@ public class NewBotBlue extends OpMode
             }
         }
 
-        if(gamepad1.b){
-            capstone.setPosition(0.67);
+        if(gamepad1.b && runtime.milliseconds() > 500){
+            cap = !cap;
+            runtime.reset();
         }
-        else{
+        if(cap){
+            capstone.setPosition(0.66);
+        }
+        else if(cap == false){
             capstone.setPosition(1);
         }
+
+
 
         if(gamepad2.x){
             power = 0.7;

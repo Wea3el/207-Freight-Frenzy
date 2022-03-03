@@ -48,9 +48,10 @@ public class BlueDuck extends OpMode {
     public void init_loop() {
         // Get current detection every loop
 
-        this.detectedLevel = this.vision.currentDeterminationReverse();
+
 
         try{
+            this.detectedLevel = this.vision.currentDeterminationReverse();
             if (this.detectedLevel != null) {
                 // Add to value if detected
                 switch (this.detectedLevel) {
@@ -101,7 +102,7 @@ public class BlueDuck extends OpMode {
         else if (three > two && three > one){
             detectedLevel = Lift.Level.BOTTOM;
         }
-        robot.drive.setTargetAndMove(180, DriveTrain.Direction.BACKWARD, 0.5);
+        robot.drive.setTargetAndMove(190, DriveTrain.Direction.BACKWARD, 0.5);
 
 
     }
@@ -122,7 +123,7 @@ public class BlueDuck extends OpMode {
                 if(robot.drive.readyForNext() &&  runtime.milliseconds() >3000){
                     runtime.reset();
                     state = AutonState.DRIVEDUCK;
-                    robot.drive.setTargetAndMove(700, DriveTrain.Direction.BACKWARD,0.1);
+                    robot.drive.setTargetAndMove(690, DriveTrain.Direction.BACKWARD,0.1);
                 }else{
                     robot.drive.turn(90);
                 }
@@ -195,7 +196,7 @@ public class BlueDuck extends OpMode {
                 if(robot.drive.readyForNext()){
                     robot.drive.waitAuton();
                     this.state = AutonState.STRAFEPARK;
-                    robot.drive.setTargetAndMove(520, DriveTrain.Direction.LEFT,0.5);
+                    robot.drive.setTargetAndMove(540, DriveTrain.Direction.LEFT,0.5);
                 }else{
 
                 }
