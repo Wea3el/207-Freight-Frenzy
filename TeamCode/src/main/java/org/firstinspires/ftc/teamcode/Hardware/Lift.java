@@ -276,7 +276,7 @@ public class Lift extends Subsystem
         TOP(3500),
         MID(2000),
         BOTTOM(30),
-        INTAKE(30);
+        INTAKE(100);
 
         public final int numTicks;
 

@@ -27,7 +27,7 @@ public class BlueWarehouse extends OpMode {
 
 
     enum AutonState {
-        MOVEFORTURN,STRAFETOWER, MOVETOWER, TURN180, TURNWAREHOUSE, STRAFELINEUP, MOVEWAREHOUSE,END
+        MOVEFORTURN,TURN180,STRAFETOWER, MOVETOWER, DEPOSIT, WAIT,TURNWAREHOUSE, STRAFELINEUP, MOVEWAREHOUSE,END
 
     }
 
@@ -35,7 +35,7 @@ public class BlueWarehouse extends OpMode {
     public void init() {
         robot = new Robot(gamepad1, gamepad2, hardwareMap, telemetry, true, false);
         robot.init();
-        state = AutonState.STRAFETOWER;
+        state = AutonState.MOVEFORTURN;
         vision = new VisionWrapper(telemetry);
         vision.init(hardwareMap);
         detectedLevel = Lift.Level.TOP; // immediately overwritten but safer without null
@@ -48,38 +48,49 @@ public class BlueWarehouse extends OpMode {
     public void init_loop() {
         // Get current detection every loop
 
-        this.detectedLevel = this.vision.currentDetermination();
+        try{
+            this.detectedLevel = this.vision.currentDeterminationReverse();
+            if (this.detectedLevel != null) {
+                // Add to value if detected
+                switch (this.detectedLevel) {
+                    case TOP:
+                        this.one++;
+                        break;
+                    case MID:
+                        this.two++;
+                        break;
+                    case BOTTOM:
+                        this.three++;
+                        break;
+                }
+                if(one > 3000 || two >3000 || three >3000 || runtime.milliseconds() > 5000){
+                    one = 0;
+                    two = 0;
+                    three = 0;
+                    runtime.reset();
+                }
+                telemetry.addData("Current detected level: ", this.detectedLevel);
 
-        if (this.detectedLevel != null) {
-            // Add to value if detected
-            switch (this.detectedLevel) {
-                case TOP:
-                    this.one++;
-                    break;
-                case MID:
-                    this.two++;
-                    break;
-                case BOTTOM:
-                    this.three++;
-                    break;
+                telemetry.addLine("-------------------------------------");
+                telemetry.addLine("Overall detection numbers: (PRESS A TO RESET)");
+                telemetry.addData("LEVEL 1: ", this.one);
+                telemetry.addData("LEVEL 2: ", this.two);
+                telemetry.addData("LEVEL 3: ", this.three);
+
+                telemetry.update();
             }
 
-            telemetry.addData("Current detected level: ", this.detectedLevel);
 
-            telemetry.addLine("-------------------------------------");
-            telemetry.addLine("Overall detection numbers: (PRESS A TO RESET)");
-            telemetry.addData("LEVEL 1: ", this.one);
-            telemetry.addData("LEVEL 2: ", this.two);
-            telemetry.addData("LEVEL 3: ", this.three);
-
-            telemetry.update();
+        }
+        catch(Exception e){
+            e.printStackTrace();
         }
 
     }
 
     @Override
     public void start() {
-        robot.drive.setTargetAndMove(100, DriveTrain.Direction.FORWARD,0.5);
+        robot.drive.setTargetAndMove(100, DriveTrain.Direction.BACKWARD,0.5);
 
     }
 
@@ -92,18 +103,20 @@ public class BlueWarehouse extends OpMode {
                     state = AutonState.TURN180;
                     runtime.reset();
                     robot.drive.waitAuton();
+                    robot.drive.turn(180);
                 }
                 break;
+
             case TURN180:
                 if(robot.drive.readyForNext() && runtime.milliseconds() > 3000){
                     runtime.reset();
                     state = AutonState.STRAFETOWER;
                     robot.drive.waitAuton();
-                    robot.drive.setTargetAndMove(170, DriveTrain.Direction.RIGHT, 0.5);
+                    robot.drive.setTargetAndMove(1000, DriveTrain.Direction.RIGHT, 0.5);
                     robot.lift.setStateLevel(Lift.States.MOVE, detectedLevel);
                 }
                 else{
-                    robot.drive.turn(180);
+
                 }
                 break;
             case STRAFETOWER:
@@ -115,27 +128,45 @@ public class BlueWarehouse extends OpMode {
                         target = 1000;
                     }
                     else if(detectedLevel == Lift.Level.MID){
-                        target = 400;
-                    }
-                    else if(detectedLevel == Lift.Level.TOP){
                         target = 200;
                     }
-                    robot.drive.setTargetAndMove(target, DriveTrain.Direction.BACKWARD,0.5);
+                    else if(detectedLevel == Lift.Level.TOP){
+                        target = 0;
+                    }
+                    robot.drive.setTargetAndMove(target, DriveTrain.Direction.FORWARD,0.5);
                 }
-
-
                 break;
 
             case MOVETOWER:
-                if (robot.drive.readyForNext()){
-                    state = AutonState.TURNWAREHOUSE;
+                if (robot.drive.readyForNext() && runtime.milliseconds() > 1000){
+                    state = AutonState.DEPOSIT;
                     runtime.reset();
                     robot.drive.waitAuton();
-
                 }
 
                 break;
+            case DEPOSIT:
 
+                if(robot.lift.getState() == Lift.States.MOVE ){
+                    runtime.reset();
+                    state = AutonState.WAIT;
+
+                }
+                else{
+                    if(robot.lift.getState() == Lift.States.ATLEVEL){
+                        robot.lift.dump();
+                    }
+                }
+                break;
+            case WAIT:
+                if(runtime.milliseconds() >2000){
+                    runtime.reset();
+
+                    state = AutonState.TURNWAREHOUSE;
+                    robot.drive.turn(90);
+                }
+
+                break;
             case TURNWAREHOUSE:
                 if(robot.drive.readyForNext() &&  runtime.milliseconds() >3000){
                     runtime.reset();
@@ -155,7 +186,7 @@ public class BlueWarehouse extends OpMode {
                 }
 
                 else{
-                    robot.drive.turn(90);
+
                 }
                 break;
             case STRAFELINEUP:
@@ -163,7 +194,7 @@ public class BlueWarehouse extends OpMode {
                     runtime.reset();
                     state = AutonState.MOVEWAREHOUSE;
                     robot.drive.waitAuton();
-                    robot.drive.setTargetAndMove(1000, DriveTrain.Direction.FORWARD,1);
+                    robot.drive.setTargetAndMove(2000, DriveTrain.Direction.FORWARD,1);
                 }
                 break;
             case MOVEWAREHOUSE:

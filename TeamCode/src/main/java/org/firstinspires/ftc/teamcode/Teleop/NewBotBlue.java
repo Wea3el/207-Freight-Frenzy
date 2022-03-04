@@ -39,11 +39,14 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.Hardware.GamePadEx;
+
 @TeleOp(name="ManualBlue", group="Iterative Opmode")
 //@Disabled
 public class NewBotBlue extends OpMode
@@ -59,6 +62,8 @@ public class NewBotBlue extends OpMode
     private DcMotor backLeft;
     private DcMotor frontLeft;
     private DcMotor intake;
+    private GamePadEx gp2 = new GamePadEx(gamepad2);
+    private boolean cap;
 
     // duck
     private DcMotor duck1;
@@ -68,10 +73,8 @@ public class NewBotBlue extends OpMode
     private double power;
     private double strafePower;
     private double speed = 1;
-    private boolean xHeld;
-    private boolean yHeld;
-
-
+    private boolean bDown;
+    private double capPos =1;
     // lift motors
     private DcMotor lift;
 
@@ -81,7 +84,6 @@ public class NewBotBlue extends OpMode
     private Servo gateOut;
     private Servo capstone;
 
-    private Servo cap;
 
     int liftPos;
 
@@ -108,6 +110,7 @@ public class NewBotBlue extends OpMode
         capstone = hardwareMap.get(Servo.class, "capstone");
 
         lift.setDirection(DcMotorSimple.Direction.REVERSE);
+        lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         frontRight.setDirection(DcMotor.Direction.FORWARD);
         backRight.setDirection(DcMotor.Direction.FORWARD);
@@ -132,7 +135,6 @@ public class NewBotBlue extends OpMode
         slope.setPosition(0.2);
         liftPos = 0;
 
-
         color = hardwareMap.get(RevColorSensorV3.class, "color");
         limit = hardwareMap.get(TouchSensor.class, "Limit");
 
@@ -153,6 +155,7 @@ public class NewBotBlue extends OpMode
     @Override
     public void start() {
         runtime.reset();
+        capstone.setPosition(1);
     }
 
     /*
@@ -186,8 +189,11 @@ public class NewBotBlue extends OpMode
 //            rightLift.setPower(gamepad2.right_stick_y *0.5);
 
             double liftpow =   gamepad2.right_stick_y;
-            if(limit.isPressed() && liftpow<0){
+            if((limit.isPressed() || lift.getCurrentPosition() <0) && liftpow<0){
                 liftpow = 0;
+            }
+            if(gamepad2.guide){
+                liftpow = -0.5;
             }
             lift.setPower(liftpow);
             if(gamepad2.left_stick_y == 0f)
@@ -213,12 +219,16 @@ public class NewBotBlue extends OpMode
             }
         }
 
-        if(gamepad1.b){
-            capstone.setPosition(0.67);
+
+        if(gamepad1.b && capPos <1){
+            capPos += 0.01;
         }
-        else{
-            capstone.setPosition(1);
+        else if(gamepad1.a && capPos >0.66){
+            capPos -= 0.01;
         }
+        capstone.setPosition(capPos);
+
+
 
         if(gamepad2.x){
             power = 0.7;
@@ -257,11 +267,6 @@ public class NewBotBlue extends OpMode
         telemetry.addData("gateIn", gateIn.getPosition());
         telemetry.addData("gateOut", gateOut.getPosition());
         telemetry.addData("slope", slope.getPosition());
-        telemetry.addData("blue", color.blue());
-        telemetry.addData("red", color.red());// red for cubes
-        telemetry.addData("green", color.green());
-        telemetry.addData("argb", color.argb());
-        telemetry.addData("alpha", color.alpha());//
         telemetry.addData("distance", color.getDistance(DistanceUnit.CM));
         telemetry.addData("lift", lift.getCurrentPosition());
 

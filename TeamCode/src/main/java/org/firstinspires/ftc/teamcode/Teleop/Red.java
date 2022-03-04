@@ -59,6 +59,7 @@ public class Red extends OpMode
     private DcMotor backLeft;
     private DcMotor frontLeft;
     private DcMotor intake;
+    private boolean cap;
 
     // duck
     private DcMotor duck1;
@@ -70,6 +71,7 @@ public class Red extends OpMode
     private double speed = 1;
     private boolean xHeld;
     private boolean yHeld;
+    private double capPos =1;
 
 
     // lift motors
@@ -81,7 +83,6 @@ public class Red extends OpMode
     private Servo gateOut;
     private Servo capstone;
 
-    private Servo cap;
 
     int liftPos;
 
@@ -108,6 +109,7 @@ public class Red extends OpMode
         capstone = hardwareMap.get(Servo.class, "capstone");
 
         lift.setDirection(DcMotorSimple.Direction.REVERSE);
+        lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         frontRight.setDirection(DcMotor.Direction.FORWARD);
         backRight.setDirection(DcMotor.Direction.FORWARD);
@@ -153,6 +155,7 @@ public class Red extends OpMode
     @Override
     public void start() {
         runtime.reset();
+        capstone.setPosition(.66);
     }
 
     /*
@@ -186,8 +189,12 @@ public class Red extends OpMode
 //            rightLift.setPower(gamepad2.right_stick_y *0.5);
 
             double liftpow =   gamepad2.right_stick_y;
-            if(limit.isPressed() && liftpow<0){
+
+            if((limit.isPressed() || lift.getCurrentPosition() <0) && liftpow<0){
                 liftpow = 0;
+            }
+            if(gamepad2.guide){
+                liftpow = -0.5;
             }
             lift.setPower(liftpow);
             if(gamepad2.left_stick_y == 0f)
@@ -212,13 +219,13 @@ public class Red extends OpMode
                 gateOut.setPosition(0.7);
             }
         }
-
-        if(gamepad1.b){
-            capstone.setPosition(0.67);
+        if(gamepad1.b && capPos <1){
+            capPos += 0.01;
         }
-        else{
-            capstone.setPosition(1);
+        else if(gamepad1.a && capPos >0.66){
+            capPos -= 0.01;
         }
+        capstone.setPosition(capPos);
 
         if(gamepad2.x){
             power = -0.7;

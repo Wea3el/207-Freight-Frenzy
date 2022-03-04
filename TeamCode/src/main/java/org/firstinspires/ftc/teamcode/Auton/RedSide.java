@@ -25,7 +25,7 @@ public class RedSide extends OpMode {
 
     enum AutonState {
         PULLOUT, TURNDUCK, DRIVEDUCK, SPINDUCK, // ONE THING
-        STRAFETOWER, DRIVEDEPOSIT, DEPOSIT, // ONETHING
+        STRAFETOWER, TURNADJUST, DRIVEDEPOSIT, DEPOSIT, // ONETHING
         BACKWALL, STRAFEPARK, END
 
     }
@@ -100,7 +100,7 @@ public class RedSide extends OpMode {
         else if (three > two && three > one){
             detectedLevel = Lift.Level.BOTTOM;
         }
-        robot.drive.setTargetAndMove(180, DriveTrain.Direction.BACKWARD, 0.5);
+        robot.drive.setTargetAndMove(190, DriveTrain.Direction.BACKWARD, 0.5);
 
 
     }
@@ -114,6 +114,7 @@ public class RedSide extends OpMode {
                     state = AutonState.TURNDUCK;
                     runtime.reset();
                     robot.drive.waitAuton();
+                    robot.drive.turn(270);
                 }else {
 
                 }
@@ -123,9 +124,9 @@ public class RedSide extends OpMode {
                 if(robot.drive.readyForNext() &&  runtime.milliseconds() >3000){
                     runtime.reset();
                     state = AutonState.DRIVEDUCK;
-                    robot.drive.setTargetAndMove(720, DriveTrain.Direction.BACKWARD,0.1);
+                    robot.drive.setTargetAndMove(690, DriveTrain.Direction.BACKWARD,0.1);
                 }else{
-                    robot.drive.turn(270);
+
                 }
 
                 break;
@@ -153,6 +154,16 @@ public class RedSide extends OpMode {
                 break;
             case STRAFETOWER:
                 if (robot.drive.readyForNext()) {
+                    state = AutonState.TURNADJUST;
+                    robot.drive.waitAuton();
+
+                    robot.drive.turn(270);
+                }
+
+                break;
+            case TURNADJUST:
+                if(robot.drive.readyForNext() &&  runtime.milliseconds() >3000){
+                    runtime.reset();
                     state = AutonState.DRIVEDEPOSIT;
                     robot.drive.waitAuton();
                     if(detectedLevel == Lift.Level.BOTTOM){
@@ -166,10 +177,8 @@ public class RedSide extends OpMode {
                     }
                     robot.drive.setTargetAndMove(target, DriveTrain.Direction.FORWARD,0.3);
                 }
-
-                break;
             case DRIVEDEPOSIT:
-                if (robot.drive.getState() == DriveTrain.DriveTrainState.IDLE) {
+                if (robot.drive.readyForNext()) {
                     state = AutonState.DEPOSIT;
                     robot.drive.waitAuton();
                 }
@@ -202,7 +211,7 @@ public class RedSide extends OpMode {
                 }
                 break;
             case STRAFEPARK:
-                if(robot.drive.getState() == DriveTrain.DriveTrainState.IDLE){
+                if(robot.drive.readyForNext()){
                     robot.drive.waitAuton();
                     this.state = AutonState.END;
                     robot.drive.setTargetAndMove(0, DriveTrain.Direction.LEFT, 0);

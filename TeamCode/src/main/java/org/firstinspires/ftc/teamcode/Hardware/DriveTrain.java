@@ -94,7 +94,7 @@ public class DriveTrain extends Subsystem {
                 break;
 
             case TURN:
-                if(onHeading(angle) & runtime.milliseconds()>1500){
+                if(onHeading(angle) || runtime.milliseconds() >4000){
                     state = DriveTrainState.IDLE;
                     this.setMotorMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 }
@@ -305,45 +305,129 @@ public class DriveTrain extends Subsystem {
     public void turn(double angle2){
         angle = angle2;
         state = DriveTrainState.TURN;
-    }
-    public boolean onHeading(double angle) {
+        this.stop();
         setMotorMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        double actual = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZXY, AngleUnit.DEGREES).firstAngle;
-        double   steer ;
-        boolean  onTarget = false ;
-        double leftSpeed;
-        double rightSpeed;
-        double error =  (angle - actual)-180;
-
-        // determine turn power based on +/- error
-
-
-        if (Math.abs(error) <= HEADING_THRESHOLD) {
-            steer = 0.0;
-            leftSpeed  = 0.0;
-            rightSpeed = 0.0;
-            onTarget = true;
-
-        }
-        else {
-            steer = gyroCorrect(angle, 1, actual , 0.05, 0.2);
-            rightSpeed  = steer;
-            leftSpeed   = -rightSpeed;
-
-        }
-
-        // Send desired speeds to motors.
-        FL.setPower(leftSpeed);
-        BL.setPower(leftSpeed);
-        FR.setPower(rightSpeed);
-        BR.setPower(rightSpeed);
-
-
-        // Display it for the driver.
-        telemetry.addData("error", error);
-        telemetry.addData("speed", steer);
-        return onTarget;
     }
+
+
+//    public boolean onHeading(double angle) {
+//        setMotorMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        double actual = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZXY, AngleUnit.DEGREES).firstAngle;
+//        boolean  onTarget = false ;
+//        double leftSpeed;
+//        double rightSpeed;
+//        double error = angle - actual;
+//        double driveScale = error * .005;
+//
+//        if (driveScale > 1) {
+//            driveScale = 1;
+//        } else if (driveScale < -1) {
+//            driveScale = -1;
+//        }
+//
+//        leftSpeed = 0 + driveScale;
+//        rightSpeed = 0 - driveScale;
+//
+//        FL.setPower(leftSpeed);
+//        BL.setPower(leftSpeed);
+//        FR.setPower(rightSpeed);
+//        BR.setPower(rightSpeed);
+//        if(Math.abs(error) < 1){
+//            onTarget = true;
+//            FL.setPower(0);
+//            BL.setPower(0);
+//            FR.setPower(0);
+//            BR.setPower(0);
+//        }
+////        if(angle >= 180){
+////            float currHeading = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+////
+////            // to convert to a 0-360 scale, if the current heading is negative add
+////            //    360 to it
+////            currHeading = currHeading < 0 ? 360 + currHeading : currHeading;
+////
+////            // difference between target and current heading
+////            double difference = angle - currHeading;
+////            telemetry.addData("Difference is ", difference);
+////
+////            // If the bot is within 1 degree of the target, stop the bot and return true
+////            if (Math.abs(difference) <= 2) {
+////                telemetry.addLine("Stopping the bot");
+////                onTarget = true;
+////            }
+////
+////
+////            // If the bot is within a 30 degree threshold of the target, slow it down to 25% of the desired speed to prevent overshooting
+////            else if (Math.abs(difference) <= 30) {
+////                FR.setPower(-0.1);
+////                BR.setPower(-0.1);
+////                FL.setPower(0.1);
+////                BL.setPower(0.1);
+////            } else { // Otherwise use normal speed
+////                FR.setPower(-0.5);
+////                BR.setPower(-0.5);
+////                FL.setPower(0.5);
+////                BL.setPower(0.5);
+////            }
+////        }
+////        else{
+////            double error =  (angle - actual)-180;
+////
+////            // determine turn power based on +/- error
+////
+////
+////            if (Math.abs(error) <= HEADING_THRESHOLD ) {
+////                steer = 0.0;
+////                leftSpeed  = 0.0;
+////                rightSpeed = 0.0;
+////                onTarget = true;
+////
+////            }
+////            else {
+////                steer = gyroCorrect(angle, 1, actual , 0.05, 0.2);
+////                rightSpeed  = steer;
+////                leftSpeed   = -rightSpeed;
+////
+////            }
+////
+////            // Send desired speeds to motors.
+////            FL.setPower(leftSpeed);
+////            BL.setPower(leftSpeed);
+////            FR.setPower(rightSpeed);
+////            BR.setPower(rightSpeed);
+////
+////
+////            // Display it for the driver.
+////            telemetry.addData("error", error);
+////            telemetry.addData("speed", steer);
+////        }
+//
+//        return onTarget;
+//    }
+    public boolean onHeading(double target) {
+        double actual = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZXY, AngleUnit.DEGREES).firstAngle;
+        double delta = (target - ((int) actual) + 360.0) % 360.0; //the difference between target and actual mod 360
+        if (delta > 180.0) delta -= 360.0; //makes delta between -180 and 180
+        if (Math.abs(delta) >= 1.0) { //checks if delta is out of range
+            double gyroMod = delta / 45.0; //scale from -1 to 1 if delta is less than 45 degrees
+            if (Math.abs(gyroMod) > 1.0) {
+                gyroMod = Math.signum(gyroMod); //set gyromod to 1 or -1 if the error is more than 45 degrees
+            }
+            this.rotateBot(0.05 * Math.signum(gyroMod) + 0.1 * gyroMod);
+            return false;
+        } else {
+            this.rotateBot(0.0);
+            return true;
+        }
+    }
+
+    private void rotateBot(double pow) {
+        FL.setPower(-pow);
+        FR.setPower(pow);
+        BL.setPower(-pow);
+        BR.setPower(pow);
+    }
+
 
     /**
      * getError determines the error between the target angle and the robot's current heading

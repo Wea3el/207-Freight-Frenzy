@@ -47,7 +47,7 @@ public class GripPipeline extends OpenCvPipeline {
 		// Step HSL_Threshold0:
 		Mat hslThresholdInput = source0;
 		double[] hslThresholdHue = {100, 255};
-		double[] hslThresholdSaturation = {100, 255};
+		double[] hslThresholdSaturation = {60, 255};
 		double[] hslThresholdLuminance = {0, 90};
 		hslThreshold(hslThresholdInput, hslThresholdHue, hslThresholdSaturation, hslThresholdLuminance, hslThresholdOutput);
 
@@ -65,7 +65,7 @@ public class GripPipeline extends OpenCvPipeline {
 		Mat cvDilateSrc = cvErodeOutput;
 		Mat cvDilateKernel = new Mat();
 		Point cvDilateAnchor = new Point(-1, -1);
-		double cvDilateIterations = 8.0;
+		double cvDilateIterations = 6.0;
 		int cvDilateBordertype = Core.BORDER_CONSTANT;
 		Scalar cvDilateBordervalue = new Scalar(-1);
 		cvDilate(cvDilateSrc, cvDilateKernel, cvDilateAnchor, cvDilateIterations, cvDilateBordertype, cvDilateBordervalue, cvDilateOutput);
