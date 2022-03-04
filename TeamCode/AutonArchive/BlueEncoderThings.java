@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.AutonArchive;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -18,6 +19,7 @@ import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import java.util.List;
 
 @Autonomous(name = "BlueEncoderThings", group = "Testing")
+@Disabled
 public class BlueEncoderThings extends OpMode {
 
     private ElapsedTime runtime = new ElapsedTime();
